@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+type TestRow = {
+  id: string; name: string; pdfUrl: string; createdAt: Date; updatedAt: Date;
+  questions: { id: string }[];
+  attempts: { id: string; status: string; score: number | null; completedAt: Date | null }[];
+};
+
 export async function GET() {
   const tests = await prisma.test.findMany({
     include: {
@@ -12,7 +18,7 @@ export async function GET() {
       },
     },
     orderBy: { createdAt: "desc" },
-  });
+  }) as unknown as TestRow[];
 
   const result = tests.map((test) => {
     const questionCount = test.questions.length;

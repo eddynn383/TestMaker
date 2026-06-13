@@ -4,6 +4,12 @@ import TestCard from "@/components/TestCard";
 
 export const dynamic = "force-dynamic";
 
+type TestRow = {
+  id: string; name: string; pdfUrl: string; createdAt: Date; updatedAt: Date;
+  questions: { id: string }[];
+  attempts: { status: string; score: number | null }[];
+};
+
 async function getTests() {
   const tests = await prisma.test.findMany({
     include: {
@@ -15,7 +21,7 @@ async function getTests() {
       },
     },
     orderBy: { createdAt: "desc" },
-  });
+  }) as unknown as TestRow[];
 
   return tests.map((test) => ({
     id: test.id,

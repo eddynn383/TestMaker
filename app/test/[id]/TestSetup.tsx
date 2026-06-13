@@ -19,16 +19,24 @@ interface Test {
   questions: Question[];
 }
 
-export default function TestSetup({ test }: { test: Test }) {
+interface ExistingAttempt {
+  id: string;
+  timeLimit: number | null;
+}
+
+export default function TestSetup({ test, existingAttempt }: { test: Test; existingAttempt: ExistingAttempt | null }) {
   const router = useRouter();
-  const [started, setStarted] = useState(false);
-  const [attemptId, setAttemptId] = useState<string | null>(null);
+
+  // If resuming an in-progress attempt, skip the setup screen entirely
+  const [started, setStarted] = useState(!!existingAttempt);
+  const [attemptId, setAttemptId] = useState<string | null>(existingAttempt?.id ?? null);
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(30);
   const [starting, setStarting] = useState(false);
 
   const totalSeconds = hours * 3600 + minutes * 60;
   const estimatedMinutes = Math.ceil(test.questions.length * 1.5);
+  const resumeTimeLimit = existingAttempt?.timeLimit ?? 0;
 
   async function handleStart() {
     setStarting(true);
@@ -49,7 +57,7 @@ export default function TestSetup({ test }: { test: Test }) {
         testId={test.id}
         testName={test.name}
         questions={test.questions}
-        initialTimeLimit={totalSeconds}
+        initialTimeLimit={existingAttempt ? resumeTimeLimit : totalSeconds}
         attemptId={attemptId}
       />
     );
@@ -80,7 +88,7 @@ export default function TestSetup({ test }: { test: Test }) {
                 max={23}
                 value={hours}
                 onChange={(e) => setHours(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-center text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-center text-lg font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <span className="text-gray-400 font-bold mt-4">:</span>
@@ -92,7 +100,7 @@ export default function TestSetup({ test }: { test: Test }) {
                 max={59}
                 value={minutes}
                 onChange={(e) => setMinutes(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-center text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-center text-lg font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>

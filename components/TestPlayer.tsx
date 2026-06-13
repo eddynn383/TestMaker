@@ -53,7 +53,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
     setSubmitting(false);
   }
 
-  async function completeTest() {
+  const completeTest = useCallback(async () => {
     const res = await fetch(`/api/tests/${testId}/attempt`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -62,7 +62,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
     const data = await res.json();
     setFinalScore({ score: data.score, correct: data.correct, total: data.total, status: data.status });
     setCompleted(true);
-  }
+  }, [testId, attemptId]);
 
   async function nextQuestion() {
     if (currentIndex + 1 >= questions.length) {
@@ -77,7 +77,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
 
   const handleTimerExpire = useCallback(async () => {
     await completeTest();
-  }, [attemptId]);
+  }, [completeTest]);
 
   if (completed && finalScore) {
     const passed = finalScore.status === "passed";
@@ -149,17 +149,17 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
 
           <div className="space-y-3">
             {options.map((opt, i) => {
-              let optClass = "border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 cursor-pointer";
+              let optClass = "border-gray-200 text-gray-800 hover:border-indigo-300 hover:bg-indigo-50 cursor-pointer";
               if (result) {
                 if (opt === result.correctAnswer) {
-                  optClass = "border-green-400 bg-green-50";
+                  optClass = "border-green-400 bg-green-50 text-green-900";
                 } else if (opt === selected && !result.isCorrect) {
-                  optClass = "border-red-400 bg-red-50";
+                  optClass = "border-red-400 bg-red-50 text-red-900";
                 } else {
-                  optClass = "border-gray-100 opacity-60 cursor-default";
+                  optClass = "border-gray-100 bg-gray-50 text-gray-400 opacity-60 cursor-default";
                 }
               } else if (selected === opt) {
-                optClass = "border-indigo-500 bg-indigo-50";
+                optClass = "border-indigo-500 bg-indigo-50 text-indigo-900";
               }
 
               return (
@@ -226,7 +226,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           <button
             onClick={submitAnswer}
             disabled={!selected || submitting}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors text-sm"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors text-sm"
           >
             {submitting ? "Submitting…" : "Submit Answer"}
           </button>

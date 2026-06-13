@@ -21,6 +21,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 export default function TestCard({ id, name, questionCount, estimatedDuration, status, score }: TestCardProps) {
   const router = useRouter();
   const cfg = statusConfig[status] ?? statusConfig.not_started;
+  const showRestart = status !== "not_started";
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
@@ -33,12 +34,25 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
         </div>
       </div>
 
-      <div className="flex items-center gap-4 ml-4 shrink-0">
+      <div className="flex items-center gap-2 ml-4 shrink-0">
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${cfg.className}`}>{cfg.label}</span>
+
+        {showRestart && (
+          <button
+            onClick={() => router.push(`/test/${id}?new=1`)}
+            className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors"
+            title="Restart test"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        )}
+
         <button
           onClick={() => router.push(`/test/${id}`)}
           className="w-11 h-11 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors shadow-sm"
-          title="Start test"
+          title={status === "started" ? "Continue test" : "Start test"}
         >
           <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
             <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.84z" />
