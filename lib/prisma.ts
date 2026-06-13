@@ -1,13 +1,10 @@
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@/app/generated/prisma";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 function createPrismaClient() {
-  const url = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
-  const authToken = process.env.TURSO_AUTH_TOKEN;
-
-  const adapter = new PrismaLibSql({ url, authToken });
+  const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
   return new PrismaClient({ adapter } as never);
 }
 
