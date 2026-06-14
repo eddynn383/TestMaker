@@ -37,7 +37,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [result, setResult] = useState<AnswerRecord | null>(null);
-  const [showCorrect, setShowCorrect] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [finalScore, setFinalScore] = useState<{ score: number; correct: number; total: number; status: string } | null>(null);
@@ -89,7 +88,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
       setCurrentIndex(nextIdx);
       setSelected(existing?.selectedAnswer ?? null);
       setResult(existing ?? null);
-      setShowCorrect(false);
     }
   }
 
@@ -99,7 +97,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
     setCurrentIndex(index);
     setSelected(record.selectedAnswer);
     setResult(record);
-    setShowCorrect(false);
     setShowDrawer(false);
   }
 
@@ -269,13 +266,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
             {options.map((opt, i) => {
               let optVariant = styles.optionDefault;
               if (result) {
-                if (opt === result.correctAnswer) {
-                  optVariant = styles.optionCorrect;
-                } else if (opt === selected && !result.isCorrect) {
-                  optVariant = styles.optionWrong;
-                } else {
-                  optVariant = styles.optionDimmed;
-                }
+                optVariant = opt === selected ? styles.optionSelected : styles.optionDimmed;
               } else if (selected === opt) {
                 optVariant = styles.optionSelected;
               }
@@ -313,28 +304,18 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
                 </>
               )}
             </div>
-            {!showCorrect ? (
-              <button
-                onClick={() => setShowCorrect(true)}
-                className="text-xs font-medium underline active:scale-95 transition-transform touch-manipulation"
-                style={{ color: "#8896aa" }}
-              >
-                See correct answer
-              </button>
-            ) : (
-              <div className="text-sm space-y-1" style={{ color: "#5a6a80" }}>
-                <p>
-                  <span className="font-medium">Correct answer: </span>
-                  <MathText text={result.correctAnswer} />
+            <div className="text-sm space-y-1 mt-1" style={{ color: "#5a6a80" }}>
+              <p>
+                <span className="font-medium">Correct answer: </span>
+                <MathText text={result.correctAnswer} />
+              </p>
+              {result.explanation && (
+                <p style={{ color: "#8896aa" }}>
+                  <span className="font-medium">Explanation: </span>
+                  {result.explanation}
                 </p>
-                {result.explanation && (
-                  <p style={{ color: "#8896aa" }}>
-                    <span className="font-medium">Explanation: </span>
-                    {result.explanation}
-                  </p>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 
