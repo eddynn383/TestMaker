@@ -6,13 +6,16 @@ export const dynamic = "force-dynamic";
 
 type TestRow = {
   id: string; name: string; pdfUrl: string; createdAt: Date; updatedAt: Date;
+  extractStatus: string; rawAiResponse: string | null; extractionError: string | null;
   questions: { id: string }[];
   attempts: { status: string; score: number | null }[];
 };
 
 async function getTests() {
   const tests = await prisma.test.findMany({
-    include: {
+    select: {
+      id: true, name: true, pdfUrl: true, createdAt: true, updatedAt: true,
+      extractStatus: true, rawAiResponse: true, extractionError: true,
       questions: { select: { id: true } },
       attempts: {
         orderBy: { startedAt: "desc" },
@@ -30,6 +33,9 @@ async function getTests() {
     estimatedDuration: Math.ceil(test.questions.length * 1.5),
     status: test.attempts[0]?.status ?? "not_started",
     score: test.attempts[0]?.score ?? null,
+    extractStatus: test.extractStatus,
+    rawAiResponse: test.rawAiResponse,
+    extractionError: test.extractionError,
   }));
 }
 
