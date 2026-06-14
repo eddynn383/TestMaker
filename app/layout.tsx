@@ -25,7 +25,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-        <SettingsProvider>{children}</SettingsProvider>
+        <SettingsProvider>
+          <div className="flex flex-col min-h-full">
+            <div className="flex-1">{children}</div>
+            <footer className="text-center py-2 opacity-30 text-xs select-none pointer-events-none">
+              {process.env.VERCEL_GIT_COMMIT_SHA
+                ? process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7)
+                : "dev"}
+            </footer>
+          </div>
+        </SettingsProvider>
       </body>
     </html>
   );
