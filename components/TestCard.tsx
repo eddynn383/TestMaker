@@ -10,6 +10,7 @@ interface TestCardProps {
   estimatedDuration: number;
   status: string;
   score: number | null;
+  onDelete: () => void;
 }
 
 const statusConfig: Record<string, { label: string; className: string }> = {
@@ -21,7 +22,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 
 const LONG_PRESS_MS = 600;
 
-export default function TestCard({ id, name, questionCount, estimatedDuration, status, score }: TestCardProps) {
+export default function TestCard({ id, name, questionCount, estimatedDuration, status, score, onDelete }: TestCardProps) {
   const router = useRouter();
   const cfg = statusConfig[status] ?? statusConfig.not_started;
   const showRestart = status !== "not_started";
@@ -49,11 +50,13 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
   async function handleDelete() {
     setDeleting(true);
     try {
-      await fetch(`/api/tests/${id}`, { method: "DELETE" });
-      router.refresh();
+      const res = await fetch(`/api/tests/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setShowConfirm(false);
+        onDelete();
+      }
     } finally {
       setDeleting(false);
-      setShowConfirm(false);
     }
   }
 
