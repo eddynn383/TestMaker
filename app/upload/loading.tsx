@@ -2,10 +2,10 @@ import styles from "@/components/SkeletonCard.module.css";
 
 export default function UploadLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#e0e5ee" }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--tm-page)" }}>
       <div
         className="w-full max-w-md rounded-3xl p-8 space-y-6"
-        style={{ background: "#e0e5ee", boxShadow: "12px 12px 24px #b8c0cc, -12px -12px 24px #ffffff" }}
+        style={{ background: "var(--tm-surface)", boxShadow: "var(--tm-shadow-card-lg)" }}
         aria-hidden="true"
       >
         <div>

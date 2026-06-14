@@ -2,10 +2,10 @@ import styles from "@/components/SkeletonCard.module.css";
 
 export default function TestLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#e0e5ee" }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--tm-page)" }}>
       <div
         className="w-full max-w-sm rounded-3xl p-8"
-        style={{ background: "#e0e5ee", boxShadow: "12px 12px 24px #b8c0cc, -12px -12px 24px #ffffff" }}
+        style={{ background: "var(--tm-surface)", boxShadow: "var(--tm-shadow-card-lg)" }}
         aria-hidden="true"
       >
         <div className="mb-6">
@@ -22,7 +22,7 @@ export default function TestLoading() {
 
         <div
           className="rounded-2xl p-4 mb-6 flex items-center justify-center gap-6"
-          style={{ boxShadow: "inset 4px 4px 8px #b8c0cc, inset -4px -4px 8px #ffffff" }}
+          style={{ boxShadow: "var(--tm-shadow-inset)" }}
         >
           <div className="flex flex-col items-center gap-2">
             <div className={styles.circle} style={{ width: 32, height: 32 }} />
