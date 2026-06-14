@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { prisma } from "@/lib/prisma";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -103,109 +103,112 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing pdfUrl or testName" }, { status: 400 });
   }
 
-  let rawAiResponse: string | null = null;
-  let extractionError: string | null = null;
-  let extractStatus = "ready";
-  let validQuestions: Array<{ text: string; options: string[]; correctAnswer: string; explanation?: string }> = [];
+  const encoder = new TextEncoder();
 
-  try {
-    // Fetch the PDF
-    const pdfResponse = await fetch(pdfUrl);
-    if (!pdfResponse.ok) {
-      throw new Error(`Failed to fetch PDF (HTTP ${pdfResponse.status})`);
-    }
-    const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
-    console.log("[extract] PDF size:", pdfBuffer.length);
+  // Stream the response so proxy/CDN idle-connection timeouts can't kill a long Gemini call.
+  // Heartbeat newlines keep the TCP connection alive; the final line is the JSON result.
+  const body = new ReadableStream({
+    async start(controller) {
+      const heartbeat = setInterval(() => {
+        try { controller.enqueue(encoder.encode('\n')); } catch { /* stream already closed */ }
+      }, 15_000);
 
-    // Call Gemini — fall back through models on quota errors
-    const base64Pdf = pdfBuffer.toString("base64");
-    let lastError: unknown;
+      const send = (payload: object) => {
+        try { controller.enqueue(encoder.encode(JSON.stringify(payload) + '\n')); } catch { /* ignore */ }
+      };
 
-    for (const modelName of MODELS) {
       try {
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent([
-          { inlineData: { mimeType: "application/pdf", data: base64Pdf } },
-          PROMPT,
-        ]);
-        rawAiResponse = result.response.text();
-        console.log("[extract] succeeded with model:", modelName);
-        break;
-      } catch (err: unknown) {
-        const status = (err as { status?: number }).status;
-        if (status === 429 || status === 404) {
-          console.warn(`[extract] model ${modelName} unavailable (${status}) — trying next`);
-          lastError = err;
-          continue;
+        let rawAiResponse: string | null = null;
+        let extractionError: string | null = null;
+        let extractStatus = "ready";
+        let validQuestions: Array<{ text: string; options: string[]; correctAnswer: string; explanation?: string }> = [];
+
+        try {
+          const pdfResponse = await fetch(pdfUrl);
+          if (!pdfResponse.ok) throw new Error(`Failed to fetch PDF (HTTP ${pdfResponse.status})`);
+          const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
+          console.log("[extract] PDF size:", pdfBuffer.length);
+
+          const base64Pdf = pdfBuffer.toString("base64");
+          let lastError: unknown;
+
+          for (const modelName of MODELS) {
+            try {
+              const model = genAI.getGenerativeModel({ model: modelName });
+              const result = await model.generateContent([
+                { inlineData: { mimeType: "application/pdf", data: base64Pdf } },
+                PROMPT,
+              ]);
+              rawAiResponse = result.response.text();
+              console.log("[extract] succeeded with model:", modelName);
+              break;
+            } catch (err: unknown) {
+              const status = (err as { status?: number }).status;
+              if (status === 429 || status === 404) {
+                console.warn(`[extract] model ${modelName} unavailable (${status}) — trying next`);
+                lastError = err;
+                continue;
+              }
+              throw err;
+            }
+          }
+
+          if (!rawAiResponse) {
+            throw new Error(`All Gemini models are rate-limited. Please wait a minute and try again. Last error: ${String(lastError)}`);
+          }
+
+          const jsonText = sanitizeJsonBackslashes(
+            rawAiResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
+          );
+          const parsed = JSON.parse(jsonText) as { questions: typeof validQuestions };
+          validQuestions = parsed.questions.filter((q) => q.correctAnswer != null);
+
+        } catch (err) {
+          extractStatus = "error";
+          extractionError = err instanceof Error ? err.message : String(err);
+          console.error("[extract] error:", extractionError);
         }
-        throw err;
+
+        const questionRows = validQuestions.map((q, i) => ({
+          text: q.text,
+          options: JSON.stringify(q.options),
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation ?? null,
+          order: i,
+        }));
+
+        try {
+          let test;
+          if (existingTestId) {
+            await prisma.question.deleteMany({ where: { testId: existingTestId } });
+            test = await prisma.test.update({
+              where: { id: existingTestId },
+              data: { name: testName, extractStatus, rawAiResponse, extractionError, questions: { create: questionRows } },
+              include: { questions: true },
+            });
+          } else {
+            test = await prisma.test.create({
+              data: { name: testName, pdfUrl, extractStatus, rawAiResponse, extractionError, questions: { create: questionRows } },
+              include: { questions: true },
+            });
+          }
+
+          if (extractStatus === "error") {
+            send({ error: extractionError, testId: test.id });
+          } else {
+            send({ test });
+          }
+        } catch (dbErr) {
+          console.error("[extract] DB error:", dbErr);
+          send({ error: "Failed to save test to database" });
+        }
+
+      } finally {
+        clearInterval(heartbeat);
+        try { controller.close(); } catch { /* ignore */ }
       }
-    }
+    },
+  });
 
-    if (!rawAiResponse) {
-      throw new Error(`All Gemini models are rate-limited. Please wait a minute and try again. Last error: ${String(lastError)}`);
-    }
-
-    // Strip markdown fences then sanitize bare backslashes before parsing
-    const jsonText = sanitizeJsonBackslashes(
-      rawAiResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
-    );
-    const parsed = JSON.parse(jsonText) as { questions: typeof validQuestions };
-    validQuestions = parsed.questions.filter((q) => q.correctAnswer != null);
-
-  } catch (err) {
-    extractStatus = "error";
-    extractionError = err instanceof Error ? err.message : String(err);
-    console.error("[extract] error:", extractionError);
-  }
-
-  const questionRows = validQuestions.map((q, i) => ({
-    text: q.text,
-    options: JSON.stringify(q.options),
-    correctAnswer: q.correctAnswer,
-    explanation: q.explanation ?? null,
-    order: i,
-  }));
-
-  // Persist — update existing test if retrying, otherwise create a new one
-  try {
-    let test;
-
-    if (existingTestId) {
-      // Retry: replace the failed test's data in-place to avoid duplicate list entries
-      await prisma.question.deleteMany({ where: { testId: existingTestId } });
-      test = await prisma.test.update({
-        where: { id: existingTestId },
-        data: {
-          name: testName,
-          extractStatus,
-          rawAiResponse,
-          extractionError,
-          questions: { create: questionRows },
-        },
-        include: { questions: true },
-      });
-    } else {
-      test = await prisma.test.create({
-        data: {
-          name: testName,
-          pdfUrl,
-          extractStatus,
-          rawAiResponse,
-          extractionError,
-          questions: { create: questionRows },
-        },
-        include: { questions: true },
-      });
-    }
-
-    if (extractStatus === "error") {
-      return NextResponse.json({ error: extractionError, testId: test.id }, { status: 422 });
-    }
-    return NextResponse.json({ test });
-
-  } catch (dbErr) {
-    console.error("[extract] DB error:", dbErr);
-    return NextResponse.json({ error: "Failed to save test to database" }, { status: 500 });
-  }
+  return new Response(body, { headers: { "Content-Type": "application/json" } });
 }

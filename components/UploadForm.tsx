@@ -39,10 +39,27 @@ export default function UploadForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pdfUrl: uploadedUrl, testName: testName.trim(), testId: failedTestId }),
       });
-      const data = await res.json();
-      if (!res.ok) {
+
+      if (!res.body) throw new Error("No response from server");
+
+      // The route streams heartbeat newlines while Gemini runs, then writes the JSON result.
+      // Read chunks until the stream closes, then parse the last non-empty line.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+      }
+
+      const lines = buffer.split("\n").map((l) => l.trim()).filter(Boolean);
+      if (!lines.length) throw new Error("The server took too long to respond. Please try again.");
+      const data = JSON.parse(lines[lines.length - 1]) as { test?: unknown; error?: string; testId?: string };
+
+      if (data.error) {
         setFailedTestId(data.testId ?? null);
-        throw new Error(data.error ?? "Failed to extract");
+        throw new Error(data.error);
       }
       setFailedTestId(null);
       router.push("/");
