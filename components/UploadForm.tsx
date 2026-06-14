@@ -104,10 +104,10 @@ export default function UploadForm() {
             }}
             onUploadError={(err) => setError(err.message)}
             appearance={{
-              container: "border-2 border-dashed border-gray-200 rounded-xl min-h-[140px] flex flex-col items-center justify-center gap-2 p-6 hover:border-indigo-300 transition-colors cursor-pointer",
+              container: "border-2 border-dashed border-[var(--tm-border)] rounded-xl min-h-[140px] flex flex-col items-center justify-center gap-2 p-6 hover:border-indigo-400 transition-colors cursor-pointer bg-[var(--tm-page)]",
               uploadIcon: "text-indigo-400",
-              label: "text-sm font-medium",
-              allowedContent: "text-xs",
+              label: "text-sm font-medium text-[var(--tm-text-1)]",
+              allowedContent: "text-xs text-[var(--tm-text-2)]",
               button: "bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors mt-1",
             }}
           />
