@@ -222,7 +222,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs text-gray-400">{currentIndex + 1}/{questions.length}</span>
-            {initialTimeLimit > 0 && <Timer totalSeconds={initialTimeLimit} onExpire={handleTimerExpire} />}
             <button
               onClick={() => setShowDrawer(true)}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
@@ -241,8 +240,18 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
         </div>
       </header>
 
+      {/* Sticky timer footer */}
+      {initialTimeLimit > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-100 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
+          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <span className="text-xs font-medium text-gray-400 tracking-wide uppercase">Time remaining</span>
+            <Timer totalSeconds={initialTimeLimit} onExpire={handleTimerExpire} />
+          </div>
+        </div>
+      )}
+
       {/* Content */}
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className={`max-w-2xl mx-auto px-4 py-8 ${initialTimeLimit > 0 ? "pb-24" : ""}`}>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-medium text-indigo-600">Question {currentIndex + 1} of {questions.length}</p>
