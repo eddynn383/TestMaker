@@ -11,6 +11,9 @@ type Test = {
   estimatedDuration: number;
   status: string;
   score: number | null;
+  extractStatus: string;
+  rawAiResponse: string | null;
+  extractionError: string | null;
 };
 
 export default function TestList({ initialTests }: { initialTests: Test[] }) {

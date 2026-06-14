@@ -43,29 +43,31 @@ MATHEMATICAL FORMULAS — read with extreme care:
 - Preserve all superscripts, subscripts, fraction bars, and root indices exactly as printed.
 - If a formula is unclear, reproduce what is visually present rather than guessing a simpler equivalent.`;
 
+const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
 
 export async function POST(req: NextRequest) {
+  const { pdfUrl, testName } = await req.json();
+
+  if (!pdfUrl || !testName) {
+    return NextResponse.json({ error: "Missing pdfUrl or testName" }, { status: 400 });
+  }
+
+  let rawAiResponse: string | null = null;
+  let extractionError: string | null = null;
+  let extractStatus = "ready";
+  let validQuestions: Array<{ text: string; options: string[]; correctAnswer: string; explanation?: string }> = [];
+
   try {
-    const { pdfUrl, testName } = await req.json();
-
-    if (!pdfUrl || !testName) {
-      return NextResponse.json({ error: "Missing pdfUrl or testName" }, { status: 400 });
-    }
-
     // Fetch the PDF
     const pdfResponse = await fetch(pdfUrl);
     if (!pdfResponse.ok) {
-      console.error("[extract] fetch failed:", pdfResponse.status, pdfResponse.statusText);
-      return NextResponse.json({ error: "Failed to fetch PDF" }, { status: 400 });
+      throw new Error(`Failed to fetch PDF (HTTP ${pdfResponse.status})`);
     }
     const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer());
     console.log("[extract] PDF size:", pdfBuffer.length);
 
-    // Send PDF directly to Gemini — works for both text and scanned/image PDFs.
-    // Falls back through models if one's free-tier quota is exhausted.
-    const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
+    // Call Gemini — fall back through models on quota errors
     const base64Pdf = pdfBuffer.toString("base64");
-    let rawText = "";
     let lastError: unknown;
 
     for (const modelName of MODELS) {
@@ -75,7 +77,7 @@ export async function POST(req: NextRequest) {
           { inlineData: { mimeType: "application/pdf", data: base64Pdf } },
           PROMPT,
         ]);
-        rawText = result.response.text();
+        rawAiResponse = result.response.text();
         console.log("[extract] succeeded with model:", modelName);
         break;
       } catch (err: unknown) {
@@ -89,29 +91,30 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (!rawText) {
-      console.error("[extract] all models rate limited:", lastError);
-      return NextResponse.json(
-        { error: "All Gemini models are rate-limited. Please wait a minute and try again." },
-        { status: 429 }
-      );
+    if (!rawAiResponse) {
+      throw new Error(`All Gemini models are rate-limited. Please wait a minute and try again. Last error: ${String(lastError)}`);
     }
 
-    let parsed: { questions: Array<{ text: string; options: string[]; correctAnswer: string; explanation?: string }> };
-    try {
-      const jsonText = rawText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      parsed = JSON.parse(jsonText);
-    } catch {
-      return NextResponse.json({ error: "Failed to parse AI response", raw: rawText }, { status: 500 });
-    }
+    // Parse JSON
+    const jsonText = rawAiResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const parsed = JSON.parse(jsonText) as { questions: typeof validQuestions };
+    validQuestions = parsed.questions.filter((q) => q.correctAnswer != null);
 
-    // Save to database — skip questions where the AI couldn't determine the correct answer
-    const validQuestions = parsed.questions.filter((q) => q.correctAnswer != null);
+  } catch (err) {
+    extractStatus = "error";
+    extractionError = err instanceof Error ? err.message : String(err);
+    console.error("[extract] error:", extractionError);
+  }
 
+  // Always persist a Test record — even on failure — so the log is visible in the UI
+  try {
     const test = await prisma.test.create({
       data: {
         name: testName,
         pdfUrl,
+        extractStatus,
+        rawAiResponse,
+        extractionError,
         questions: {
           create: validQuestions.map((q, i) => ({
             text: q.text,
@@ -125,9 +128,13 @@ export async function POST(req: NextRequest) {
       include: { questions: true },
     });
 
+    if (extractStatus === "error") {
+      return NextResponse.json({ error: extractionError, testId: test.id }, { status: 422 });
+    }
     return NextResponse.json({ test });
-  } catch (error) {
-    console.error("Extract error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+
+  } catch (dbErr) {
+    console.error("[extract] DB error:", dbErr);
+    return NextResponse.json({ error: "Failed to save test to database" }, { status: 500 });
   }
 }
