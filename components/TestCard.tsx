@@ -63,45 +63,47 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
   return (
     <>
       <div
-        className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center justify-between hover:shadow-md transition-shadow select-none"
+        className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-4 sm:px-6 sm:py-5 hover:shadow-md transition-shadow select-none"
         onPointerDown={startPress}
         onPointerUp={cancelPress}
         onPointerLeave={cancelPress}
         onPointerCancel={cancelPress}
       >
-        <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-semibold text-gray-900 truncate">{name}</h2>
-          <div className="mt-1 flex items-center gap-4 text-sm text-gray-500">
+        {/* Row 1: title + action buttons */}
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="text-base font-semibold text-gray-900 leading-snug pt-0.5 min-w-0 flex-1">{name}</h2>
+          <div className="flex items-center gap-2 shrink-0">
+            {showRestart && (
+              <button
+                onClick={() => { if (!didLongPress.current) router.push(`/test/${id}?new=1`); }}
+                className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors"
+                title="Restart test"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={() => { if (!didLongPress.current) router.push(`/test/${id}`); }}
+              className="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors shadow-sm"
+              title={status === "started" ? "Continue test" : "Start test"}
+            >
+              <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.84z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Row 2: stats + status badge */}
+        <div className="mt-2.5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 text-sm text-gray-500">
             <span>{questionCount} questions</span>
             <span>~{estimatedDuration} min</span>
             {score !== null && <span className="font-medium text-gray-700">{score.toFixed(0)}%</span>}
           </div>
-        </div>
-
-        <div className="flex items-center gap-2 ml-4 shrink-0">
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${cfg.className}`}>{cfg.label}</span>
-
-          {showRestart && (
-            <button
-              onClick={() => { if (!didLongPress.current) router.push(`/test/${id}?new=1`); }}
-              className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors"
-              title="Restart test"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
-          )}
-
-          <button
-            onClick={() => { if (!didLongPress.current) router.push(`/test/${id}`); }}
-            className="w-11 h-11 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors shadow-sm"
-            title={status === "started" ? "Continue test" : "Start test"}
-          >
-            <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.84z" />
-            </svg>
-          </button>
+          <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.className}`}>{cfg.label}</span>
         </div>
       </div>
 
