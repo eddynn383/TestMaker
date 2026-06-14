@@ -131,7 +131,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           </div>
           <button
             onClick={() => router.push("/")}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all active:scale-[0.97] touch-manipulation"
           >
             Back to Home
           </button>
@@ -157,7 +157,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           </div>
           <button
             onClick={() => setShowDrawer(false)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all active:scale-90 touch-manipulation"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -177,13 +177,13 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
                   onClick={() => navigateToQuestion(i)}
                   disabled={!isAnswered}
                   className={[
-                    "w-full aspect-square rounded-lg text-xs font-semibold transition-colors flex items-center justify-center",
+                    "w-full aspect-square rounded-lg text-xs font-semibold transition-all flex items-center justify-center touch-manipulation",
                     isCurrent ? "ring-2 ring-indigo-500 ring-offset-1" : "",
                     !isAnswered
                       ? "bg-gray-100 text-gray-300 cursor-not-allowed"
                       : record.isCorrect
-                      ? "bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer"
-                      : "bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer",
+                      ? "bg-green-100 text-green-700 hover:bg-green-200 active:scale-90 cursor-pointer"
+                      : "bg-red-100 text-red-700 hover:bg-red-200 active:scale-90 cursor-pointer",
                   ].join(" ")}
                 >
                   {i + 1}
@@ -213,7 +213,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
       <header className="bg-white border-b border-gray-100 px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <button onClick={() => router.push("/")} className="text-gray-400 hover:text-gray-600 shrink-0">
+            <button onClick={() => router.push("/")} className="text-gray-400 hover:text-gray-600 shrink-0 active:scale-90 transition-transform touch-manipulation">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
@@ -224,7 +224,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
             <span className="text-xs text-gray-400">{currentIndex + 1}/{questions.length}</span>
             <button
               onClick={() => setShowDrawer(true)}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all active:scale-90 touch-manipulation"
               title="Question navigation"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,7 +285,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
                   key={i}
                   onClick={() => !result && setSelected(opt)}
                   disabled={!!result}
-                  className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm ${optClass}`}
+                  className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm touch-manipulation ${!result ? "active:scale-[0.97]" : ""} ${optClass}`}
                 >
                   <MathText text={opt} />
                 </button>
@@ -316,7 +316,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
             {!showCorrect ? (
               <button
                 onClick={() => setShowCorrect(true)}
-                className="text-xs font-medium text-gray-500 hover:text-gray-800 underline"
+                className="text-xs font-medium text-gray-500 hover:text-gray-800 underline active:scale-95 transition-transform touch-manipulation"
               >
                 See correct answer
               </button>
@@ -341,14 +341,14 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           <button
             onClick={submitAnswer}
             disabled={!selected || submitting}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors text-sm"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all active:scale-[0.97] disabled:active:scale-100 text-sm touch-manipulation"
           >
             {submitting ? "Submitting…" : "Submit Answer"}
           </button>
         ) : (
           <button
             onClick={nextQuestion}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors text-sm"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all active:scale-[0.97] text-sm touch-manipulation"
           >
             {currentIndex + 1 >= questions.length ? "Finish Test" : "Next Question →"}
           </button>

@@ -80,7 +80,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); if (!didLongPress.current) setShowLog(true); }}
-              className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors"
+              className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-all active:scale-90 touch-manipulation"
               title="View AI log"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +90,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
             {showRestart && (
               <button
                 onClick={() => { if (!didLongPress.current) router.push(`/test/${id}?new=1`); }}
-                className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-all active:scale-90 touch-manipulation"
                 title="Restart test"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
             {!isExtractionError && (
               <button
                 onClick={() => { if (!didLongPress.current) router.push(`/test/${id}`); }}
-                className="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors shadow-sm"
+                className="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-all active:scale-90 shadow-sm touch-manipulation"
                 title={status === "started" ? "Continue test" : "Start test"}
               >
                 <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -147,7 +147,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
               </div>
               <button
                 onClick={() => setShowLog(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all active:scale-90 touch-manipulation"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -201,14 +201,14 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all active:scale-95 touch-manipulation"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium transition-all active:scale-95 touch-manipulation"
               >
                 {deleting ? "Deleting…" : "Delete"}
               </button>
