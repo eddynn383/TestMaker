@@ -1,0 +1,181 @@
+/* ─── Shared surface ──────────────────────────────────────────────────────── */
+.page     { background: #e0e5ee; min-height: 100vh; }
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  background: #e0e5ee;
+  box-shadow: 0 4px 10px #b8c0cc, 0 1px 3px rgba(255,255,255,0.5);
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+/* ─── Icon buttons (back, drawer toggle, drawer close) ───────────────────── */
+.iconBtn {
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: 50%;
+  background: #e0e5ee;
+  border: none;
+  box-shadow: 4px 4px 8px #b8c0cc, -4px -4px 8px #ffffff;
+  color: #8896aa;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, color 0.15s ease;
+  touch-action: manipulation;
+  outline: none;
+}
+.iconBtn:hover  { color: #5a6a80; }
+.iconBtn:active {
+  box-shadow: inset 3px 3px 6px #b8c0cc, inset -3px -3px 6px #ffffff;
+}
+
+/* ─── Progress bar ───────────────────────────────────────────────────────── */
+.progressTrack {
+  height: 6px;
+  background: #e0e5ee;
+  border-radius: 9999px;
+  box-shadow: inset 2px 2px 4px #b8c0cc, inset -2px -2px 4px #ffffff;
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  box-shadow: 0 0 8px rgba(99,102,241,0.5);
+  transition: width 0.5s ease;
+}
+
+/* ─── Question card ──────────────────────────────────────────────────────── */
+.questionCard {
+  background: #e0e5ee;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 8px 8px 16px #b8c0cc, -8px -8px 16px #ffffff;
+  margin-bottom: 16px;
+}
+
+/* ─── Answer options ─────────────────────────────────────────────────────── */
+.optionBase {
+  width: 100%; text-align: left;
+  padding: 13px 16px;
+  border: none; border-radius: 14px;
+  font-size: 0.875rem;
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.optionDefault {
+  background: #e0e5ee; color: #3d4a5c;
+  box-shadow: 4px 4px 8px #b8c0cc, -4px -4px 8px #ffffff;
+}
+.optionDefault:active {
+  box-shadow: inset 3px 3px 6px #b8c0cc, inset -3px -3px 6px #ffffff;
+}
+.optionSelected {
+  background: #eaecf8; color: #3730a3;
+  box-shadow: inset 3px 3px 7px #b8bce8, inset -3px -3px 7px #f4f5ff;
+}
+.optionCorrect {
+  background: #e8f5e9; color: #15803d;
+  box-shadow: inset 3px 3px 7px #aacfaa, inset -3px -3px 7px #f0fff0;
+  cursor: default;
+}
+.optionWrong {
+  background: #fde8e8; color: #b91c1c;
+  box-shadow: inset 3px 3px 7px #e8b8b8, inset -3px -3px 7px #fff0f0;
+  cursor: default;
+}
+.optionDimmed {
+  background: #d4d9e4; color: #8896aa; opacity: 0.6;
+  box-shadow: inset 1px 1px 3px #b8c0cc, inset -1px -1px 3px #eceef2;
+  cursor: default;
+}
+
+/* ─── Feedback box ───────────────────────────────────────────────────────── */
+.feedbackCorrect {
+  background: #e8f5e9; border-radius: 16px; padding: 16px; margin-bottom: 16px;
+  box-shadow: 5px 5px 10px #aacfaa, -5px -5px 10px #ffffff;
+}
+.feedbackWrong {
+  background: #fde8e8; border-radius: 16px; padding: 16px; margin-bottom: 16px;
+  box-shadow: 5px 5px 10px #e8b8b8, -5px -5px 10px #ffffff;
+}
+
+/* ─── Primary CTA button (submit / next / back to home) ─────────────────── */
+.primaryBtn {
+  width: 100%; padding: 14px;
+  border: none; border-radius: 14px;
+  background: linear-gradient(145deg, #6e7ff0, #5458e8);
+  color: white; font-weight: 600; font-size: 0.875rem;
+  cursor: pointer;
+  box-shadow: 5px 5px 12px rgba(84,88,232,0.45), -4px -4px 10px rgba(255,255,255,0.35);
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+  touch-action: manipulation;
+  outline: none;
+}
+.primaryBtn:hover { background: linear-gradient(145deg, #7a8af2, #4f53e0); }
+.primaryBtn:active {
+  box-shadow: inset 3px 3px 7px rgba(50,54,180,0.6), inset -2px -2px 5px rgba(255,255,255,0.15);
+}
+.primaryBtn:disabled {
+  background: #d4d9e4; color: #8896aa; cursor: not-allowed;
+  box-shadow: inset 2px 2px 4px #b8c0cc, inset -2px -2px 4px #ffffff;
+}
+
+/* ─── Drawer ─────────────────────────────────────────────────────────────── */
+.drawer {
+  background: #e0e5ee;
+  box-shadow: 8px 0 24px #b8c0cc, 2px 0 6px rgba(255,255,255,0.3);
+}
+
+/* Drawer question grid */
+.drawerBtnBase {
+  border: none; border-radius: 10px;
+  font-size: 0.75rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; width: 100%;
+  transition: box-shadow 0.15s ease;
+  touch-action: manipulation; outline: none;
+}
+.drawerBtnPending {
+  background: #d4d9e4; color: #8896aa; cursor: not-allowed;
+  box-shadow: inset 2px 2px 4px #b8c0cc, inset -2px -2px 4px #eceef2;
+}
+.drawerBtnCorrect {
+  background: #dcfce7; color: #15803d; cursor: pointer;
+  box-shadow: 3px 3px 6px #aacfaa, -3px -3px 6px #ffffff;
+}
+.drawerBtnCorrect:active { box-shadow: inset 2px 2px 4px #aacfaa, inset -2px -2px 4px #ffffff; }
+.drawerBtnWrong {
+  background: #fee2e2; color: #b91c1c; cursor: pointer;
+  box-shadow: 3px 3px 6px #e8b8b8, -3px -3px 6px #ffffff;
+}
+.drawerBtnWrong:active  { box-shadow: inset 2px 2px 4px #e8b8b8, inset -2px -2px 4px #ffffff; }
+
+/* ─── Timer footer ───────────────────────────────────────────────────────── */
+.timerFooter {
+  background: #e0e5ee;
+  box-shadow: 0 -6px 16px #b8c0cc, 0 -1px 4px rgba(255,255,255,0.4);
+}
+
+/* ─── Score screen ───────────────────────────────────────────────────────── */
+.scoreCard {
+  background: #e0e5ee; border-radius: 28px;
+  padding: 40px; max-width: 400px; width: 100%; text-align: center;
+  box-shadow: 12px 12px 24px #b8c0cc, -12px -12px 24px #ffffff;
+}
+.scoreIconPassed {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: #dcfce7;
+  box-shadow: 6px 6px 12px #aacfaa, -6px -6px 12px #ffffff;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+}
+.scoreIconFailed {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: #fee2e2;
+  box-shadow: 6px 6px 12px #e8b8b8, -6px -6px 12px #ffffff;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+}
