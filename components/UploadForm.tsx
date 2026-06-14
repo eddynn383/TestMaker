@@ -19,6 +19,7 @@ export default function UploadForm() {
   const [processing, setProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [failedTestId, setFailedTestId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!processing) { setProcessingStep(0); return; }
@@ -36,10 +37,14 @@ export default function UploadForm() {
       const res = await fetch("/api/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pdfUrl: uploadedUrl, testName: testName.trim() }),
+        body: JSON.stringify({ pdfUrl: uploadedUrl, testName: testName.trim(), testId: failedTestId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Failed to extract");
+      if (!res.ok) {
+        setFailedTestId(data.testId ?? null);
+        throw new Error(data.error ?? "Failed to extract");
+      }
+      setFailedTestId(null);
       router.push("/");
       router.refresh();
     } catch (e) {
