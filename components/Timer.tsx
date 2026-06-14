@@ -27,12 +27,10 @@ export default function Timer({ totalSeconds, onExpire }: TimerProps) {
   const isLow = remaining < 60;
 
   const pillStyle = isLow
-    ? { background: "#fde8e8", boxShadow: "inset 3px 3px 6px #e8b8b8, inset -3px -3px 6px #fff0f0", color: "#b91c1c" }
-    : { background: "#e0e5ee", boxShadow: "inset 3px 3px 6px #b8c0cc, inset -3px -3px 6px #ffffff", color: "#5a6a80" };
+    ? { background: "var(--tm-timer-bg-low)", boxShadow: "var(--tm-timer-shadow-low)", color: "var(--tm-timer-text-low)" }
+    : { background: "var(--tm-timer-bg)", boxShadow: "var(--tm-timer-shadow)", color: "var(--tm-timer-text)" };
 
-  const trackStyle = isLow
-    ? { background: "#f8d4d4", boxShadow: "inset 1px 1px 2px #e8b8b8, inset -1px -1px 2px #fff0f0" }
-    : { background: "#d4d9e4", boxShadow: "inset 1px 1px 2px #b8c0cc, inset -1px -1px 2px #ffffff" };
+  const trackStyle = { background: "var(--tm-timer-track-bg)" };
 
   const fillStyle = isLow
     ? { background: "#ef4444", width: `${percent}%` }

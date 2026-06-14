@@ -42,6 +42,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Claude Code local config
+.claude/
+
 /app/generated/prisma
 prisma/dev.db
 prisma/dev.db-journal

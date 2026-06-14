@@ -111,22 +111,22 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
         <div className={styles.scoreCard}>
           <div className={passed ? styles.scoreIconPassed : styles.scoreIconFailed}>
             {passed ? (
-              <svg className="w-10 h-10" style={{ color: "#15803d" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-10 h-10" style={{ color: "var(--tm-correct-text)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             ) : (
-              <svg className="w-10 h-10" style={{ color: "#b91c1c" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-10 h-10" style={{ color: "var(--tm-wrong-text)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             )}
           </div>
-          <h2 className="text-2xl font-bold mb-2" style={{ color: "#3d4a5c" }}>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--tm-text-1)" }}>
             {passed ? "Test Passed!" : "Test Failed"}
           </h2>
-          <p className="mb-6 text-sm" style={{ color: "#8896aa" }}>
+          <p className="mb-6 text-sm" style={{ color: "var(--tm-text-2)" }}>
             You answered {finalScore.correct} out of {finalScore.total} questions correctly.
           </p>
-          <div className="text-5xl font-bold mb-8" style={{ color: passed ? "#15803d" : "#b91c1c" }}>
+          <div className="text-5xl font-bold mb-8" style={{ color: passed ? "var(--tm-correct-text)" : "var(--tm-wrong-text)" }}>
             {finalScore.score.toFixed(0)}%
           </div>
           <button onClick={() => router.push("/")} className={styles.primaryBtn}>
@@ -149,12 +149,12 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
       {/* Drawer */}
       <div
         className={`fixed top-0 left-0 z-50 h-full w-72 flex flex-col transform transition-transform duration-300 ease-in-out ${showDrawer ? "translate-x-0" : "-translate-x-full"}`}
-        style={{ background: "#e0e5ee", boxShadow: "8px 0 24px #b8c0cc, 2px 0 6px rgba(255,255,255,0.3)" }}
+        style={{ background: "var(--tm-page)", boxShadow: "var(--tm-shadow-drawer)" }}
       >
-        <div className="flex items-center justify-between px-4 py-4" style={{ borderBottom: "1px solid #c8d0dc" }}>
+        <div className="flex items-center justify-between px-4 py-4" style={{ borderBottom: "1px solid var(--tm-border)" }}>
           <div>
-            <h2 className="font-semibold text-sm" style={{ color: "#3d4a5c" }}>Questions</h2>
-            <p className="text-xs mt-0.5" style={{ color: "#8896aa" }}>{answeredCount} of {questions.length} answered</p>
+            <h2 className="font-semibold text-sm" style={{ color: "var(--tm-text-1)" }}>Questions</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--tm-text-2)" }}>{answeredCount} of {questions.length} answered</p>
           </div>
           <button onClick={() => setShowDrawer(false)} className={styles.iconBtn}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,7 +180,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
                   onClick={() => navigateToQuestion(i)}
                   disabled={!isAnswered}
                   className={`${styles.drawerBtnBase} ${btnVariant} touch-manipulation`}
-                  style={isCurrent ? { outline: "2px solid #6366f1", outlineOffset: "2px" } : undefined}
+                  style={isCurrent ? { outline: "2px solid var(--tm-accent)", outlineOffset: "2px" } : undefined}
                 >
                   {i + 1}
                 </button>
@@ -189,17 +189,17 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           </div>
         </div>
 
-        <div className="px-4 py-3 flex items-center gap-4" style={{ borderTop: "1px solid #c8d0dc" }}>
-          <span className="flex items-center gap-1.5 text-xs" style={{ color: "#8896aa" }}>
-            <span className="w-3 h-3 rounded inline-block" style={{ background: "#dcfce7" }} />
+        <div className="px-4 py-3 flex items-center gap-4" style={{ borderTop: "1px solid var(--tm-border)" }}>
+          <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--tm-text-2)" }}>
+            <span className="w-3 h-3 rounded inline-block" style={{ background: "var(--tm-drawer-correct-bg)" }} />
             Correct
           </span>
-          <span className="flex items-center gap-1.5 text-xs" style={{ color: "#8896aa" }}>
-            <span className="w-3 h-3 rounded inline-block" style={{ background: "#fee2e2" }} />
+          <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--tm-text-2)" }}>
+            <span className="w-3 h-3 rounded inline-block" style={{ background: "var(--tm-drawer-wrong-bg)" }} />
             Incorrect
           </span>
-          <span className="flex items-center gap-1.5 text-xs" style={{ color: "#8896aa" }}>
-            <span className="w-3 h-3 rounded inline-block" style={{ background: "#d4d9e4" }} />
+          <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--tm-text-2)" }}>
+            <span className="w-3 h-3 rounded inline-block" style={{ background: "var(--tm-drawer-pending-bg)" }} />
             Pending
           </span>
         </div>
@@ -214,10 +214,10 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <span className="text-sm font-medium truncate" style={{ color: "#3d4a5c" }}>{testName}</span>
+            <span className="text-sm font-medium truncate" style={{ color: "var(--tm-text-1)" }}>{testName}</span>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <span className="text-xs" style={{ color: "#8896aa" }}>{currentIndex + 1}/{questions.length}</span>
+            <span className="text-xs" style={{ color: "var(--tm-text-2)" }}>{currentIndex + 1}/{questions.length}</span>
             <button onClick={() => setShowDrawer(true)} className={styles.iconBtn} title="Question navigation">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -236,7 +236,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
       {initialTimeLimit > 0 && (
         <div className={`fixed bottom-0 left-0 right-0 z-30 ${styles.timerFooter}`}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-            <span className="text-xs font-medium tracking-wide uppercase" style={{ color: "#8896aa" }}>Time remaining</span>
+            <span className="text-xs font-medium tracking-wide uppercase" style={{ color: "var(--tm-text-2)" }}>Time remaining</span>
             <Timer totalSeconds={initialTimeLimit} onExpire={handleTimerExpire} />
           </div>
         </div>
@@ -246,19 +246,19 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
       <main className={`max-w-2xl mx-auto px-4 py-8 ${initialTimeLimit > 0 ? "pb-24" : ""}`}>
         <div className={styles.questionCard}>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-medium" style={{ color: "#6366f1" }}>Question {currentIndex + 1} of {questions.length}</p>
+            <p className="text-xs font-medium" style={{ color: "var(--tm-accent)" }}>Question {currentIndex + 1} of {questions.length}</p>
             {result && (
               <span
                 className="text-xs font-medium px-2 py-0.5 rounded-full"
                 style={result.isCorrect
-                  ? { background: "#dcfce7", color: "#15803d" }
-                  : { background: "#fee2e2", color: "#b91c1c" }}
+                  ? { background: "var(--tm-correct-bg)", color: "var(--tm-correct-text)" }
+                  : { background: "var(--tm-wrong-bg)", color: "var(--tm-wrong-text)" }}
               >
                 {result.isCorrect ? "Correct" : "Incorrect"}
               </span>
             )}
           </div>
-          <div className="text-base leading-relaxed mb-6" style={{ color: "#3d4a5c" }}>
+          <div className="text-base leading-relaxed mb-6" style={{ color: "var(--tm-text-1)" }}>
             <MathText text={question.text} />
           </div>
 
@@ -290,27 +290,27 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
             <div className="flex items-center gap-2 mb-2">
               {result.isCorrect ? (
                 <>
-                  <svg className="w-5 h-5" style={{ color: "#15803d" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" style={{ color: "var(--tm-correct-text)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="font-semibold" style={{ color: "#15803d" }}>Correct!</span>
+                  <span className="font-semibold" style={{ color: "var(--tm-correct-text)" }}>Correct!</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5" style={{ color: "#b91c1c" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" style={{ color: "var(--tm-wrong-text)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  <span className="font-semibold" style={{ color: "#b91c1c" }}>Incorrect</span>
+                  <span className="font-semibold" style={{ color: "var(--tm-wrong-text)" }}>Incorrect</span>
                 </>
               )}
             </div>
-            <div className="text-sm space-y-1 mt-1" style={{ color: "#5a6a80" }}>
+            <div className="text-sm space-y-1 mt-1" style={{ color: "var(--tm-text-3)" }}>
               <p>
                 <span className="font-medium">Correct answer: </span>
                 <MathText text={result.correctAnswer} />
               </p>
               {result.explanation && (
-                <p style={{ color: "#8896aa" }}>
+                <p style={{ color: "var(--tm-text-2)" }}>
                   <span className="font-medium">Explanation: </span>
                   {result.explanation}
                 </p>
