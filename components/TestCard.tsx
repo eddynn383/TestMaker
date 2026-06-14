@@ -17,7 +17,7 @@ interface TestCardProps {
 }
 
 const statusConfig: Record<string, { label: string; className: string }> = {
-  not_started: { label: "Not Started", className: "bg-gray-100 text-gray-600" },
+  not_started: { label: "Not Started", className: "bg-gray-200/70 text-gray-500" },
   started: { label: "In Progress", className: "bg-blue-100 text-blue-700" },
   passed: { label: "Passed", className: "bg-green-100 text-green-700" },
   failed: { label: "Failed", className: "bg-red-100 text-red-700" },
@@ -34,6 +34,14 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showLog, setShowLog] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  function copyToClipboard(text: string, key: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
+    });
+  }
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didLongPress = useRef(false);
 
@@ -68,7 +76,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
   return (
     <>
       <div
-        className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-4 sm:px-6 sm:py-5 hover:shadow-md transition-shadow select-none"
+        className="bg-gray-50 rounded-2xl px-4 py-4 sm:px-6 sm:py-5 shadow-[6px_6px_12px_#c8cfd8,-6px_-6px_12px_#ffffff] transition-shadow select-none"
         onPointerDown={startPress}
         onPointerUp={cancelPress}
         onPointerLeave={cancelPress}
@@ -80,7 +88,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); if (!didLongPress.current) setShowLog(true); }}
-              className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors"
+              className="w-9 h-9 rounded-full bg-gray-50 shadow-[3px_3px_6px_#c8cfd8,-3px_-3px_6px_#ffffff] active:shadow-[inset_3px_3px_6px_#c8cfd8,inset_-3px_-3px_6px_#ffffff] text-gray-400 hover:text-gray-600 flex items-center justify-center transition-all touch-manipulation"
               title="View AI log"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +98,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
             {showRestart && (
               <button
                 onClick={() => { if (!didLongPress.current) router.push(`/test/${id}?new=1`); }}
-                className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-full bg-gray-50 shadow-[3px_3px_6px_#c8cfd8,-3px_-3px_6px_#ffffff] active:shadow-[inset_3px_3px_6px_#c8cfd8,inset_-3px_-3px_6px_#ffffff] text-gray-400 hover:text-gray-600 flex items-center justify-center transition-all touch-manipulation"
                 title="Restart test"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +109,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
             {!isExtractionError && (
               <button
                 onClick={() => { if (!didLongPress.current) router.push(`/test/${id}`); }}
-                className="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-colors shadow-sm"
+                className="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-all shadow-[3px_3px_8px_rgba(67,56,202,0.45),-2px_-2px_6px_rgba(255,255,255,0.25)] active:shadow-[inset_2px_2px_5px_rgba(67,56,202,0.5)] touch-manipulation"
                 title={status === "started" ? "Continue test" : "Start test"}
               >
                 <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -147,7 +155,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
               </div>
               <button
                 onClick={() => setShowLog(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all active:scale-90 touch-manipulation"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -165,14 +173,58 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
 
               {extractionError && (
                 <div>
-                  <p className="text-xs font-medium text-red-700 mb-1.5">Error</p>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-xs font-medium text-red-700">Error</p>
+                    <button
+                      onClick={() => copyToClipboard(extractionError!, "error")}
+                      className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-all active:scale-90 touch-manipulation"
+                    >
+                      {copiedKey === "error" ? (
+                        <>
+                          <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-green-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <pre className="text-xs bg-red-50 border border-red-100 rounded-xl p-3 text-red-800 whitespace-pre-wrap break-words">{extractionError}</pre>
                 </div>
               )}
 
               {rawAiResponse && (
                 <div>
-                  <p className="text-xs font-medium text-gray-600 mb-1.5">Raw AI Response</p>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-xs font-medium text-gray-600">Raw AI Response</p>
+                    <button
+                      onClick={() => copyToClipboard(rawAiResponse!, "raw")}
+                      className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-all active:scale-90 touch-manipulation"
+                    >
+                      {copiedKey === "raw" ? (
+                        <>
+                          <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-green-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <pre className="text-xs bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 whitespace-pre-wrap break-words max-h-64 overflow-y-auto">{rawAiResponse}</pre>
                 </div>
               )}
@@ -201,14 +253,14 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all active:scale-95 touch-manipulation"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium transition-all active:scale-95 touch-manipulation"
               >
                 {deleting ? "Deleting…" : "Delete"}
               </button>
