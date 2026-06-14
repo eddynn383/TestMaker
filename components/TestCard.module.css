@@ -1,0 +1,107 @@
+/* ─── Page-level surface colour ──────────────────────────────────────────── */
+:root {
+  --nm-bg: #e0e5ee;
+  --nm-shadow-dark: #b8c0cc;
+  --nm-shadow-light: #ffffff;
+}
+
+/* ─── Card ────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--nm-bg);
+  border-radius: 20px;
+  box-shadow:
+    10px 10px 20px var(--nm-shadow-dark),
+    -10px -10px 20px var(--nm-shadow-light);
+  transition: box-shadow 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ─── Icon buttons (log, restart) ────────────────────────────────────────── */
+.iconBtn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--nm-bg);
+  border: none;
+  box-shadow:
+    5px 5px 10px var(--nm-shadow-dark),
+    -5px -5px 10px var(--nm-shadow-light);
+  color: #8896aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, color 0.15s ease;
+  touch-action: manipulation;
+  outline: none;
+}
+
+.iconBtn:hover {
+  color: #5a6a80;
+}
+
+.iconBtn:active {
+  box-shadow:
+    inset 4px 4px 8px var(--nm-shadow-dark),
+    inset -4px -4px 8px var(--nm-shadow-light);
+  color: #5a6a80;
+}
+
+/* ─── Play / CTA button ──────────────────────────────────────────────────── */
+.playBtn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #6e7ff0, #5458e8);
+  border: none;
+  box-shadow:
+    5px 5px 12px rgba(84, 88, 232, 0.45),
+    -4px -4px 10px rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+  touch-action: manipulation;
+  outline: none;
+}
+
+.playBtn:hover {
+  background: linear-gradient(145deg, #7a8af2, #4f53e0);
+}
+
+.playBtn:active {
+  box-shadow:
+    inset 3px 3px 7px rgba(50, 54, 180, 0.6),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.15);
+}
+
+/* ─── Status badges ──────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badgeDefault {
+  background: var(--nm-bg);
+  color: #8896aa;
+  box-shadow:
+    inset 3px 3px 6px var(--nm-shadow-dark),
+    inset -3px -3px 6px var(--nm-shadow-light);
+}
+
+.badgeStarted  { background: #dbeafe; color: #1d4ed8; }
+.badgePassed   { background: #dcfce7; color: #15803d; }
+.badgeFailed   { background: #fee2e2; color: #b91c1c; }
+.badgeError    { background: #fee2e2; color: #b91c1c; }
