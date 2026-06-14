@@ -1,4 +1,4 @@
 -- AlterTable
-ALTER TABLE "Test" ADD COLUMN "extractStatus" TEXT NOT NULL DEFAULT 'ready';
-ALTER TABLE "Test" ADD COLUMN "rawAiResponse" TEXT;
-ALTER TABLE "Test" ADD COLUMN "extractionError" TEXT;
+ALTER TABLE "Test" ADD COLUMN IF NOT EXISTS "extractStatus" TEXT NOT NULL DEFAULT 'ready';
+ALTER TABLE "Test" ADD COLUMN IF NOT EXISTS "rawAiResponse" TEXT;
+ALTER TABLE "Test" ADD COLUMN IF NOT EXISTS "extractionError" TEXT;
