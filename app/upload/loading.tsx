@@ -23,6 +23,7 @@ export default function UploadLoading() {
           <div className={`${styles.block} w-full`} style={{ height: 120, borderRadius: 14 }} />
         </div>
 
+
         <div className={`${styles.block} h-11 w-full`} style={{ borderRadius: 14 }} />
       </div>
     </div>
