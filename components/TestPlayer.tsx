@@ -24,21 +24,29 @@ interface TestPlayerProps {
   attemptId: string;
 }
 
-type AnswerResult = { isCorrect: boolean; correctAnswer: string; explanation: string | null } | null;
+type AnswerRecord = {
+  isCorrect: boolean;
+  correctAnswer: string;
+  explanation: string | null;
+  selectedAnswer: string;
+};
 
 export default function TestPlayer({ testId, testName, questions, initialTimeLimit, attemptId }: TestPlayerProps) {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
-  const [result, setResult] = useState<AnswerResult>(null);
+  const [result, setResult] = useState<AnswerRecord | null>(null);
   const [showCorrect, setShowCorrect] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [finalScore, setFinalScore] = useState<{ score: number; correct: number; total: number; status: string } | null>(null);
+  const [answeredMap, setAnsweredMap] = useState<Record<number, AnswerRecord>>({});
+  const [showDrawer, setShowDrawer] = useState(false);
 
   const question = questions[currentIndex];
   const options: string[] = JSON.parse(question.options);
-  const progress = ((currentIndex + (result ? 1 : 0)) / questions.length) * 100;
+  const answeredCount = Object.keys(answeredMap).length;
+  const progress = (answeredCount / questions.length) * 100;
 
   async function submitAnswer() {
     if (!selected || submitting) return;
@@ -49,7 +57,14 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
       body: JSON.stringify({ action: "answer", attemptId, questionId: question.id, selectedAnswer: selected }),
     });
     const data = await res.json();
-    setResult({ isCorrect: data.isCorrect, correctAnswer: data.correctAnswer, explanation: data.explanation });
+    const record: AnswerRecord = {
+      isCorrect: data.isCorrect,
+      correctAnswer: data.correctAnswer,
+      explanation: data.explanation,
+      selectedAnswer: selected,
+    };
+    setAnsweredMap((prev) => ({ ...prev, [currentIndex]: record }));
+    setResult(record);
     setSubmitting(false);
   }
 
@@ -68,11 +83,23 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
     if (currentIndex + 1 >= questions.length) {
       await completeTest();
     } else {
-      setCurrentIndex((i) => i + 1);
-      setSelected(null);
-      setResult(null);
+      const nextIdx = currentIndex + 1;
+      const existing = answeredMap[nextIdx];
+      setCurrentIndex(nextIdx);
+      setSelected(existing?.selectedAnswer ?? null);
+      setResult(existing ?? null);
       setShowCorrect(false);
     }
+  }
+
+  function navigateToQuestion(index: number) {
+    const record = answeredMap[index];
+    if (!record) return;
+    setCurrentIndex(index);
+    setSelected(record.selectedAnswer);
+    setResult(record);
+    setShowCorrect(false);
+    setShowDrawer(false);
   }
 
   const handleTimerExpire = useCallback(async () => {
@@ -115,6 +142,73 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Drawer backdrop */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${showDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={() => setShowDrawer(false)}
+      />
+
+      {/* Drawer */}
+      <div className={`fixed top-0 left-0 z-50 h-full w-72 bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out ${showDrawer ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+          <div>
+            <h2 className="font-semibold text-gray-900 text-sm">Questions</h2>
+            <p className="text-xs text-gray-400 mt-0.5">{answeredCount} of {questions.length} answered</p>
+          </div>
+          <button
+            onClick={() => setShowDrawer(false)}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="grid grid-cols-5 gap-2">
+            {questions.map((_, i) => {
+              const record = answeredMap[i];
+              const isCurrent = i === currentIndex;
+              const isAnswered = !!record;
+              return (
+                <button
+                  key={i}
+                  onClick={() => navigateToQuestion(i)}
+                  disabled={!isAnswered}
+                  className={[
+                    "w-full aspect-square rounded-lg text-xs font-semibold transition-colors flex items-center justify-center",
+                    isCurrent ? "ring-2 ring-indigo-500 ring-offset-1" : "",
+                    !isAnswered
+                      ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                      : record.isCorrect
+                      ? "bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer"
+                      : "bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer",
+                  ].join(" ")}
+                >
+                  {i + 1}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="px-4 py-3 border-t border-gray-100 flex items-center gap-4">
+          <span className="flex items-center gap-1.5 text-xs text-gray-500">
+            <span className="w-3 h-3 rounded bg-green-100 border border-green-200 inline-block" />
+            Correct
+          </span>
+          <span className="flex items-center gap-1.5 text-xs text-gray-500">
+            <span className="w-3 h-3 rounded bg-red-100 border border-red-200 inline-block" />
+            Incorrect
+          </span>
+          <span className="flex items-center gap-1.5 text-xs text-gray-500">
+            <span className="w-3 h-3 rounded bg-gray-100 border border-gray-200 inline-block" />
+            Pending
+          </span>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="bg-white border-b border-gray-100 px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
@@ -126,15 +220,23 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
             </button>
             <span className="text-sm font-medium text-gray-700 truncate">{testName}</span>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs text-gray-400">{currentIndex + 1}/{questions.length}</span>
             {initialTimeLimit > 0 && <Timer totalSeconds={initialTimeLimit} onExpire={handleTimerExpire} />}
+            <button
+              onClick={() => setShowDrawer(true)}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              title="Question navigation"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            </button>
           </div>
         </div>
-        {/* Progress bar */}
         <div className="max-w-2xl mx-auto mt-2">
           <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full bg-indigo-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+            <div className="h-full bg-indigo-500 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
         </div>
       </header>
@@ -142,7 +244,14 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
       {/* Content */}
       <main className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
-          <p className="text-xs font-medium text-indigo-600 mb-3">Question {currentIndex + 1}</p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-medium text-indigo-600">Question {currentIndex + 1} of {questions.length}</p>
+            {result && (
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${result.isCorrect ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                {result.isCorrect ? "Correct" : "Incorrect"}
+              </span>
+            )}
+          </div>
           <div className="text-gray-900 text-base leading-relaxed mb-6">
             <MathText text={question.text} />
           </div>
@@ -176,7 +285,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           </div>
         </div>
 
-        {/* Feedback */}
         {result && (
           <div className={`rounded-2xl p-4 mb-4 ${result.isCorrect ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
             <div className="flex items-center gap-2 mb-2">
@@ -196,7 +304,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
                 </>
               )}
             </div>
-
             {!showCorrect ? (
               <button
                 onClick={() => setShowCorrect(true)}
@@ -221,7 +328,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           </div>
         )}
 
-        {/* Actions */}
         {!result ? (
           <button
             onClick={submitAnswer}
@@ -235,7 +341,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
             onClick={nextQuestion}
             className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors text-sm"
           >
-            {currentIndex + 1 >= questions.length ? "Finish Test" : "Next Question"}
+            {currentIndex + 1 >= questions.length ? "Finish Test" : "Next Question →"}
           </button>
         )}
       </main>
