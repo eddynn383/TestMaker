@@ -93,10 +93,12 @@ After writing each formula, re-read the original image and verify the symbol mat
 const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
 
 function sanitizeJsonBackslashes(raw: string): string {
-  // Gemini sometimes outputs bare LaTeX backslashes (\sum, \frac) inside JSON strings,
-  // which are invalid JSON escape sequences. This escapes any lone backslash that is not
-  // already a valid JSON escape: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX
-  return raw.replace(/\\(?!["\\/bfnrtu])/g, "\\\\");
+  // Gemini sometimes outputs bare LaTeX backslashes (\sum, \frac, \underline …) inside JSON
+  // strings. Those are invalid JSON escape sequences and cause JSON.parse to throw.
+  // This doubles any backslash that is NOT the start of a valid JSON escape:
+  //   \"  \\  \/  \b  \f  \n  \r  \t  \uHHHH (exactly 4 hex digits)
+  // NOTE: \u must be followed by 4 hex digits; bare \u (e.g. \underline) is NOT valid JSON.
+  return raw.replace(/\\(?!["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "\\\\");
 }
 
 export async function POST(req: NextRequest) {
