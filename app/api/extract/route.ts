@@ -12,21 +12,24 @@ const PROMPT = `Extract all questions and answers from this test/exam document. 
 {
   "questions": [
     {
-      "text": "The full question text (preserve any math formulas using LaTeX notation with $ for inline and $$ for block)",
-      "options": ["Option A text", "Option B text", "Option C text", "Option D text"],
-      "correctAnswer": "The exact text of the correct answer option",
-      "explanation": "Brief explanation of why this is correct (optional)"
+      "text": "ONLY the question stem — stop before any answer options appear. Do NOT include option labels (a, b, c, d) or option text here.",
+      "options": ["Text of option a only", "Text of option b only", "Text of option c only", "Text of option d only"],
+      "correctAnswer": "The exact text of the correct option (must match one entry in options exactly)",
+      "explanation": "Optional brief explanation of why this answer is correct"
     }
   ]
 }
 
-Rules:
-- Preserve mathematical formulas using LaTeX notation
-- Include ALL questions found in the document
-- For multiple choice, list all options
-- If it's a true/false question, options should be ["True", "False"]
-- correctAnswer must exactly match one of the options
-- Return ONLY the JSON, no other text`;
+CRITICAL rules:
+- "text" must contain ONLY the question stem. It must end before the first answer option (a), b), A), B), 1., 2., etc.).
+- "options" must be a flat array of strings — one entry per answer choice, containing only the option text, NOT the label (no "a)", "b)", "A.", etc.).
+- Every option that appears in the document must be a separate element in the array.
+- "correctAnswer" must exactly match one of the strings in "options".
+- If the document marks a correct answer (e.g. bold, underlined, starred, circled letter), use that as correctAnswer.
+- If it's a true/false question, options should be ["True", "False"].
+- Preserve mathematical formulas using LaTeX ($...$ for inline, $$...$$ for block).
+- Include ALL questions found in the document.
+- Return ONLY valid JSON — no markdown fences, no extra text.`;
 
 export async function POST(req: NextRequest) {
   try {
