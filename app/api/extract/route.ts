@@ -27,9 +27,22 @@ CRITICAL rules:
 - "correctAnswer" must exactly match one of the strings in "options".
 - If the document marks a correct answer (e.g. bold, underlined, starred, circled letter), use that as correctAnswer.
 - If it's a true/false question, options should be ["True", "False"].
-- Preserve mathematical formulas using LaTeX ($...$ for inline, $$...$$ for block).
 - Include ALL questions found in the document.
-- Return ONLY valid JSON — no markdown fences, no extra text.`;
+- Return ONLY valid JSON — no markdown fences, no extra text.
+
+MATHEMATICAL FORMULAS — read with extreme care:
+- Render every formula in LaTeX: $...$ for inline, $$...$$ for block.
+- These symbols are frequently confused — identify each one precisely before writing LaTeX:
+    ∑ (sigma, summation) → \\sum        e.g. $\\sum_{i=1}^{n} x_i$
+    ∏ (pi, product)      → \\prod       e.g. $\\prod_{i=1}^{n} x_i$   ← NOT \\sum
+    √  (square root)     → \\sqrt{}     e.g. $\\sqrt{x}$
+    ⁿ√ (n-th root)       → \\sqrt[n]{} e.g. $\\sqrt[n]{\\prod_{i=1}^{n} x_i}$
+    x̄  (x-bar, mean)     → \\bar{x}
+    x²  (squared)        → x^2
+- Never substitute one operator for another. If a formula contains ∏ it must appear as \\prod, not \\sum.
+- Preserve all superscripts, subscripts, fraction bars, and root indices exactly as printed.
+- If a formula is unclear, reproduce what is visually present rather than guessing a simpler equivalent.`;
+
 
 export async function POST(req: NextRequest) {
   try {
