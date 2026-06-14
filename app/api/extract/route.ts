@@ -32,16 +32,57 @@ CRITICAL rules:
 
 MATHEMATICAL FORMULAS — read with extreme care:
 - Render every formula in LaTeX: $...$ for inline, $$...$$ for block.
-- These symbols are frequently confused — identify each one precisely before writing LaTeX:
-    ∑ (sigma, summation) → \\sum        e.g. $\\sum_{i=1}^{n} x_i$
-    ∏ (pi, product)      → \\prod       e.g. $\\prod_{i=1}^{n} x_i$   ← NOT \\sum
-    √  (square root)     → \\sqrt{}     e.g. $\\sqrt{x}$
-    ⁿ√ (n-th root)       → \\sqrt[n]{} e.g. $\\sqrt[n]{\\prod_{i=1}^{n} x_i}$
-    x̄  (x-bar, mean)     → \\bar{x}
-    x²  (squared)        → x^2
-- Never substitute one operator for another. If a formula contains ∏ it must appear as \\prod, not \\sum.
-- Preserve all superscripts, subscripts, fraction bars, and root indices exactly as printed.
-- If a formula is unclear, reproduce what is visually present rather than guessing a simpler equivalent.`;
+- Before writing any formula, LOOK AGAIN at the exact symbol in the image. Do not write from memory or assumption.
+
+SYMBOL REFERENCE TABLE — match what you see to the correct LaTeX:
+  OPERATORS
+    ∑  (capital sigma, tall zigzag, summation)   → \\sum         $\\sum_{i=1}^{n} x_i$
+    ∏  (capital pi, tall rectangle legs, product) → \\prod        $\\prod_{i=1}^{n} x_i$
+    ∫  (elongated S, integral)                   → \\int         $\\int_a^b f(x)\\,dx$
+    ±  (plus-minus)                              → \\pm
+    ×  (multiplication cross)                    → \\times
+    ÷  (division)                                → \\div
+    ≠  (not equal)                               → \\neq
+    ≤  (less-or-equal)                           → \\leq
+    ≥  (greater-or-equal)                        → \\geq
+    ≈  (approximately equal)                     → \\approx
+    ∞  (infinity)                                → \\infty
+  ROOTS & FRACTIONS
+    √x  (square root)                            → \\sqrt{x}
+    ⁿ√x (n-th root)                              → \\sqrt[n]{x}
+    a/b (fraction)                               → \\frac{a}{b}
+  GREEK LETTERS (lowercase)
+    α → \\alpha   β → \\beta    γ → \\gamma   δ → \\delta
+    ε → \\epsilon ζ → \\zeta    η → \\eta     θ → \\theta
+    λ → \\lambda  μ → \\mu      ν → \\nu      ξ → \\xi
+    π → \\pi      ρ → \\rho     σ → \\sigma   τ → \\tau
+    φ → \\phi     χ → \\chi     ψ → \\psi     ω → \\omega
+  GREEK LETTERS (uppercase — these differ from operators above)
+    Γ → \\Gamma   Δ → \\Delta   Θ → \\Theta   Λ → \\Lambda
+    Ξ → \\Xi      Π → \\Pi      Σ → \\Sigma   Φ → \\Phi
+    Ψ → \\Psi     Ω → \\Omega
+  STATISTICS & PROBABILITY
+    x̄  (x with overbar, sample mean)             → \\bar{x}
+    x̂  (x with hat, estimator)                  → \\hat{x}
+    x²  or x^2 (squared)                        → x^2
+    C(n,k) or ⁿCₖ (combinations)                → \\binom{n}{k}
+    P(A|B) (conditional probability)             → P(A|B)
+    μ (population mean) → \\mu
+    σ (population std dev) → \\sigma
+    σ² (variance) → \\sigma^2
+    s² (sample variance) → s^2
+    Σ when used as summation operator            → \\sum   (NOT \\Sigma)
+
+CRITICAL ANTI-CONFUSION RULES:
+1. ∑ (summation) vs ∏ (product): ∑ has a zigzag/M-shape top and bottom; ∏ has a flat top and two vertical legs extending down. They are NEVER interchangeable.
+2. σ (lowercase sigma) vs Σ (uppercase sigma used as summation): If it has limits (subscript/superscript i=1, n), it is \\sum. If it stands alone as a parameter, it is \\sigma.
+3. π (pi, ratio of circumference) vs ∏ (product operator with limits): ∏ is taller and has explicit index limits. π is just the constant ≈3.14159.
+4. μ (mu) vs u (letter u): μ has two downward strokes; u has a curved bottom.
+5. Never omit subscripts or superscripts — if you see $x_i$ do not write just $x$.
+6. Never flatten a fraction a/b into just text — always use \\frac{a}{b}.
+7. If a root has an index (small number in the crook), include it: \\sqrt[3]{x} not \\sqrt{x}.
+
+After writing each formula, re-read the original image and verify the symbol matches exactly. If uncertain between two symbols, output the one that is visually present, not the one that is more common in textbooks.`;
 
 const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
 
