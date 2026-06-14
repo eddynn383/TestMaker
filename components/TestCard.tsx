@@ -34,6 +34,14 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showLog, setShowLog] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  function copyToClipboard(text: string, key: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2000);
+    });
+  }
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didLongPress = useRef(false);
 
@@ -165,14 +173,58 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
 
               {extractionError && (
                 <div>
-                  <p className="text-xs font-medium text-red-700 mb-1.5">Error</p>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-xs font-medium text-red-700">Error</p>
+                    <button
+                      onClick={() => copyToClipboard(extractionError!, "error")}
+                      className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-all active:scale-90 touch-manipulation"
+                    >
+                      {copiedKey === "error" ? (
+                        <>
+                          <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-green-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <pre className="text-xs bg-red-50 border border-red-100 rounded-xl p-3 text-red-800 whitespace-pre-wrap break-words">{extractionError}</pre>
                 </div>
               )}
 
               {rawAiResponse && (
                 <div>
-                  <p className="text-xs font-medium text-gray-600 mb-1.5">Raw AI Response</p>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-xs font-medium text-gray-600">Raw AI Response</p>
+                    <button
+                      onClick={() => copyToClipboard(rawAiResponse!, "raw")}
+                      className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-all active:scale-90 touch-manipulation"
+                    >
+                      {copiedKey === "raw" ? (
+                        <>
+                          <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-green-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <pre className="text-xs bg-gray-50 border border-gray-100 rounded-xl p-3 text-gray-700 whitespace-pre-wrap break-words max-h-64 overflow-y-auto">{rawAiResponse}</pre>
                 </div>
               )}
