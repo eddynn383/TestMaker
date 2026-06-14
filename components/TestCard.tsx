@@ -50,11 +50,11 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
   async function handleDelete() {
     setDeleting(true);
     try {
-      await fetch(`/api/tests/${id}`, { method: "DELETE" });
-      setShowConfirm(false);
-      onDelete();
-    } catch {
-      // network error — keep modal open so user can retry
+      const res = await fetch(`/api/tests/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setShowConfirm(false);
+        onDelete();
+      }
     } finally {
       setDeleting(false);
     }
