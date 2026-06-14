@@ -16,7 +16,8 @@ const PROMPT = `Extract all questions and answers from this test/exam document. 
     {
       "text": "ONLY the question stem — stop before any answer options appear. Do NOT include option labels (a, b, c, d) or option text here.",
       "options": ["Text of option a only", "Text of option b only", "Text of option c only", "Text of option d only"],
-      "correctAnswer": "The exact text of the correct option (must match one entry in options exactly)",
+      "questionType": "single",
+      "correctAnswers": ["The exact text of the correct option — must match one entry in options exactly"],
       "explanation": "Optional brief explanation of why this answer is correct"
     }
   ]
@@ -26,9 +27,11 @@ CRITICAL rules:
 - "text" must contain ONLY the question stem. It must end before the first answer option (a), b), A), B), 1., 2., etc.).
 - "options" must be a flat array of strings — one entry per answer choice, containing only the option text, NOT the label (no "a)", "b)", "A.", etc.).
 - Every option that appears in the document must be a separate element in the array.
-- "correctAnswer" must exactly match one of the strings in "options".
-- If the document marks a correct answer (e.g. bold, underlined, starred, circled letter), use that as correctAnswer.
-- If it's a true/false question, options should be ["True", "False"].
+- "questionType" must be "single" if exactly one answer is correct, or "multiple" if two or more answers are simultaneously correct.
+- "correctAnswers" is ALWAYS an array. For single-answer questions it has exactly one element. For multiple-answer questions it has all correct answers.
+- Every string in "correctAnswers" must exactly match one entry in "options".
+- If the document marks correct answers (e.g. bold, underlined, starred, circled letter), include ALL marked answers in correctAnswers.
+- If it's a true/false question, options should be ["True", "False"] and questionType is "single".
 - Include ALL questions found in the document.
 - Return ONLY valid JSON — no markdown fences, no extra text.
 - IMPORTANT: In JSON strings, LaTeX backslashes MUST be doubled. Write \\\\sum not \\sum, \\\\frac not \\frac, etc.
@@ -121,7 +124,15 @@ export async function POST(req: NextRequest) {
         let rawAiResponse: string | null = null;
         let extractionError: string | null = null;
         let extractStatus = "ready";
-        let validQuestions: Array<{ text: string; options: string[]; correctAnswer: string; explanation?: string }> = [];
+        type AIQuestion = {
+          text: string;
+          options: string[];
+          correctAnswers?: string[];
+          correctAnswer?: string; // fallback for older AI responses
+          questionType?: string;
+          explanation?: string;
+        };
+        let validQuestions: AIQuestion[] = [];
 
         try {
           const pdfResponse = await fetch(pdfUrl);
@@ -160,8 +171,13 @@ export async function POST(req: NextRequest) {
           const jsonText = sanitizeJsonBackslashes(
             rawAiResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
           );
-          const parsed = JSON.parse(jsonText) as { questions: typeof validQuestions };
-          validQuestions = parsed.questions.filter((q) => q.correctAnswer != null);
+          const parsed = JSON.parse(jsonText) as { questions: AIQuestion[] };
+          validQuestions = parsed.questions.filter((q) => {
+            // Accept both new format (correctAnswers array) and legacy (correctAnswer string)
+            if (Array.isArray(q.correctAnswers) && q.correctAnswers.length > 0) return true;
+            if (q.correctAnswer != null) return true;
+            return false;
+          });
 
         } catch (err) {
           extractStatus = "error";
@@ -169,13 +185,20 @@ export async function POST(req: NextRequest) {
           console.error("[extract] error:", extractionError);
         }
 
-        const questionRows = validQuestions.map((q, i) => ({
-          text: q.text,
-          options: JSON.stringify(q.options),
-          correctAnswer: q.correctAnswer,
-          explanation: q.explanation ?? null,
-          order: i,
-        }));
+        const questionRows = validQuestions.map((q, i) => {
+          // Normalize to array: prefer correctAnswers, fall back to wrapping correctAnswer
+          const answers: string[] = Array.isArray(q.correctAnswers) && q.correctAnswers.length > 0
+            ? q.correctAnswers
+            : q.correctAnswer != null ? [q.correctAnswer] : [];
+          return {
+            text: q.text,
+            options: JSON.stringify(q.options),
+            correctAnswer: JSON.stringify(answers),
+            questionType: q.questionType === "multiple" ? "multiple" : "single",
+            explanation: q.explanation ?? null,
+            order: i,
+          };
+        });
 
         try {
           let test;

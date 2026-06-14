@@ -26,7 +26,8 @@ model Question {
   test          Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
   text          String
   options       String
-  correctAnswer String
+  correctAnswer String   // JSON array of correct answer strings
+  questionType  String   @default("single") // "single" | "multiple"
   explanation   String?
   order         Int
   answers       Answer[]

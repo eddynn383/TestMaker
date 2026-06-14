@@ -15,7 +15,7 @@ export default async function TestPage({ params, searchParams }: Props) {
 
   type TestWithQuestions = {
     id: string; name: string; pdfUrl: string; createdAt: Date; updatedAt: Date;
-    questions: { id: string; text: string; options: string; correctAnswer: string; explanation: string | null; order: number }[];
+    questions: { id: string; text: string; options: string; correctAnswer: string; questionType: string; explanation: string | null; order: number }[];
   };
 
   const test = await prisma.test.findUnique({
