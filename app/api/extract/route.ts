@@ -97,7 +97,10 @@ export async function POST(req: NextRequest) {
 
     // Parse JSON
     const jsonText = rawAiResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const parsed = JSON.parse(jsonText) as { questions: typeof validQuestions };
+    // Gemini sometimes emits single backslashes in LaTeX (e.g. \sum, \bar) which are
+    // invalid JSON escape sequences. Fix them before parsing.
+    const sanitizedJsonText = jsonText.replace(/\\(?!["\\/bfnrtu])/g, "\\\\");
+    const parsed = JSON.parse(sanitizedJsonText) as { questions: typeof validQuestions };
     validQuestions = parsed.questions.filter((q) => q.correctAnswer != null);
 
   } catch (err) {
