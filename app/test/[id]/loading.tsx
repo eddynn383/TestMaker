@@ -2,31 +2,27 @@ import styles from "@/components/SkeletonCard.module.css";
 
 export default function TestLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "#e0e5ee" }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--tm-page)" }}>
       <div
         className="w-full max-w-sm rounded-3xl p-8"
-        style={{ background: "#e0e5ee", boxShadow: "12px 12px 24px #b8c0cc, -12px -12px 24px #ffffff" }}
+        style={{ background: "var(--tm-surface)", boxShadow: "var(--tm-shadow-card-lg)" }}
         aria-hidden="true"
       >
-        {/* Test name */}
         <div className="mb-6">
           <div className={`${styles.block} h-4 mb-2`} style={{ width: "45%" }} />
           <div className={`${styles.block} h-7`} style={{ width: "85%" }} />
         </div>
 
-        {/* Stats row */}
         <div className="flex items-center gap-4 mb-8">
           <div className={`${styles.block} h-4`} style={{ width: 90 }} />
           <div className={`${styles.block} h-4`} style={{ width: 70 }} />
         </div>
 
-        {/* Timer label */}
         <div className={`${styles.block} h-3.5 mb-3`} style={{ width: 100 }} />
 
-        {/* Timer picker */}
         <div
           className="rounded-2xl p-4 mb-6 flex items-center justify-center gap-6"
-          style={{ boxShadow: "inset 4px 4px 8px #b8c0cc, inset -4px -4px 8px #ffffff" }}
+          style={{ boxShadow: "var(--tm-shadow-inset)" }}
         >
           <div className="flex flex-col items-center gap-2">
             <div className={styles.circle} style={{ width: 32, height: 32 }} />
@@ -41,7 +37,6 @@ export default function TestLoading() {
           </div>
         </div>
 
-        {/* Start button */}
         <div className={`${styles.block} h-12 w-full`} style={{ borderRadius: 14 }} />
       </div>
     </div>

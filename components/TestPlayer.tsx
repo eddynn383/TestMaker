@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Timer from "./Timer";
+import styles from "./TestPlayer.module.css";
 
 const MathText = dynamic(() => import("./MathText"), { ssr: false });
 
@@ -36,7 +37,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [result, setResult] = useState<AnswerRecord | null>(null);
-  const [showCorrect, setShowCorrect] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [finalScore, setFinalScore] = useState<{ score: number; correct: number; total: number; status: string } | null>(null);
@@ -88,7 +88,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
       setCurrentIndex(nextIdx);
       setSelected(existing?.selectedAnswer ?? null);
       setResult(existing ?? null);
-      setShowCorrect(false);
     }
   }
 
@@ -98,7 +97,6 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
     setCurrentIndex(index);
     setSelected(record.selectedAnswer);
     setResult(record);
-    setShowCorrect(false);
     setShowDrawer(false);
   }
 
@@ -109,30 +107,29 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
   if (completed && finalScore) {
     const passed = finalScore.status === "passed";
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-10 max-w-md w-full text-center">
-          <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${passed ? "bg-green-100" : "bg-red-100"}`}>
+      <div className={`${styles.page} flex items-center justify-center p-4`}>
+        <div className={styles.scoreCard}>
+          <div className={passed ? styles.scoreIconPassed : styles.scoreIconFailed}>
             {passed ? (
-              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-10 h-10" style={{ color: "var(--tm-correct-text)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             ) : (
-              <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-10 h-10" style={{ color: "var(--tm-wrong-text)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             )}
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{passed ? "Test Passed!" : "Test Failed"}</h2>
-          <p className="text-gray-500 mb-6">
+          <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--tm-text-1)" }}>
+            {passed ? "Test Passed!" : "Test Failed"}
+          </h2>
+          <p className="mb-6 text-sm" style={{ color: "var(--tm-text-2)" }}>
             You answered {finalScore.correct} out of {finalScore.total} questions correctly.
           </p>
-          <div className={`text-5xl font-bold mb-8 ${passed ? "text-green-600" : "text-red-600"}`}>
+          <div className="text-5xl font-bold mb-8" style={{ color: passed ? "var(--tm-correct-text)" : "var(--tm-wrong-text)" }}>
             {finalScore.score.toFixed(0)}%
           </div>
-          <button
-            onClick={() => router.push("/")}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all active:scale-[0.97] touch-manipulation"
-          >
+          <button onClick={() => router.push("/")} className={styles.primaryBtn}>
             Back to Home
           </button>
         </div>
@@ -141,24 +138,25 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={styles.page}>
       {/* Drawer backdrop */}
       <div
-        className={`fixed inset-0 z-40 bg-black/30 transition-opacity duration-300 ${showDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ${showDrawer ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        style={{ background: "rgba(0,0,0,0.3)" }}
         onClick={() => setShowDrawer(false)}
       />
 
       {/* Drawer */}
-      <div className={`fixed top-0 left-0 z-50 h-full w-72 bg-white shadow-xl flex flex-col transform transition-transform duration-300 ease-in-out ${showDrawer ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+      <div
+        className={`fixed top-0 left-0 z-50 h-full w-72 flex flex-col transform transition-transform duration-300 ease-in-out ${showDrawer ? "translate-x-0" : "-translate-x-full"}`}
+        style={{ background: "var(--tm-page)", boxShadow: "var(--tm-shadow-drawer)" }}
+      >
+        <div className="flex items-center justify-between px-4 py-4" style={{ borderBottom: "1px solid var(--tm-border)" }}>
           <div>
-            <h2 className="font-semibold text-gray-900 text-sm">Questions</h2>
-            <p className="text-xs text-gray-400 mt-0.5">{answeredCount} of {questions.length} answered</p>
+            <h2 className="font-semibold text-sm" style={{ color: "var(--tm-text-1)" }}>Questions</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--tm-text-2)" }}>{answeredCount} of {questions.length} answered</p>
           </div>
-          <button
-            onClick={() => setShowDrawer(false)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all active:scale-90 touch-manipulation"
-          >
+          <button onClick={() => setShowDrawer(false)} className={styles.iconBtn}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -171,20 +169,18 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
               const record = answeredMap[i];
               const isCurrent = i === currentIndex;
               const isAnswered = !!record;
+              const btnVariant = !isAnswered
+                ? styles.drawerBtnPending
+                : record.isCorrect
+                ? styles.drawerBtnCorrect
+                : styles.drawerBtnWrong;
               return (
                 <button
                   key={i}
                   onClick={() => navigateToQuestion(i)}
                   disabled={!isAnswered}
-                  className={[
-                    "w-full aspect-square rounded-lg text-xs font-semibold transition-all flex items-center justify-center touch-manipulation",
-                    isCurrent ? "ring-2 ring-indigo-500 ring-offset-1" : "",
-                    !isAnswered
-                      ? "bg-gray-100 text-gray-300 cursor-not-allowed"
-                      : record.isCorrect
-                      ? "bg-green-100 text-green-700 hover:bg-green-200 active:scale-90 cursor-pointer"
-                      : "bg-red-100 text-red-700 hover:bg-red-200 active:scale-90 cursor-pointer",
-                  ].join(" ")}
+                  className={`${styles.drawerBtnBase} ${btnVariant} touch-manipulation`}
+                  style={isCurrent ? { outline: "2px solid var(--tm-accent)", outlineOffset: "2px" } : undefined}
                 >
                   {i + 1}
                 </button>
@@ -193,58 +189,54 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           </div>
         </div>
 
-        <div className="px-4 py-3 border-t border-gray-100 flex items-center gap-4">
-          <span className="flex items-center gap-1.5 text-xs text-gray-500">
-            <span className="w-3 h-3 rounded bg-green-100 border border-green-200 inline-block" />
+        <div className="px-4 py-3 flex items-center gap-4" style={{ borderTop: "1px solid var(--tm-border)" }}>
+          <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--tm-text-2)" }}>
+            <span className="w-3 h-3 rounded inline-block" style={{ background: "var(--tm-drawer-correct-bg)" }} />
             Correct
           </span>
-          <span className="flex items-center gap-1.5 text-xs text-gray-500">
-            <span className="w-3 h-3 rounded bg-red-100 border border-red-200 inline-block" />
+          <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--tm-text-2)" }}>
+            <span className="w-3 h-3 rounded inline-block" style={{ background: "var(--tm-drawer-wrong-bg)" }} />
             Incorrect
           </span>
-          <span className="flex items-center gap-1.5 text-xs text-gray-500">
-            <span className="w-3 h-3 rounded bg-gray-100 border border-gray-200 inline-block" />
+          <span className="flex items-center gap-1.5 text-xs" style={{ color: "var(--tm-text-2)" }}>
+            <span className="w-3 h-3 rounded inline-block" style={{ background: "var(--tm-drawer-pending-bg)" }} />
             Pending
           </span>
         </div>
       </div>
 
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 px-4 py-3">
+      <header className={`${styles.header} px-4 py-3`}>
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <button onClick={() => router.push("/")} className="text-gray-400 hover:text-gray-600 shrink-0 active:scale-90 transition-transform touch-manipulation">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onClick={() => router.push("/")} className={styles.iconBtn}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <span className="text-sm font-medium text-gray-700 truncate">{testName}</span>
+            <span className="text-sm font-medium truncate" style={{ color: "var(--tm-text-1)" }}>{testName}</span>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs text-gray-400">{currentIndex + 1}/{questions.length}</span>
-            <button
-              onClick={() => setShowDrawer(true)}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all active:scale-90 touch-manipulation"
-              title="Question navigation"
-            >
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-xs" style={{ color: "var(--tm-text-2)" }}>{currentIndex + 1}/{questions.length}</span>
+            <button onClick={() => setShowDrawer(true)} className={styles.iconBtn} title="Question navigation">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
               </svg>
             </button>
           </div>
         </div>
-        <div className="max-w-2xl mx-auto mt-2">
-          <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full bg-indigo-500 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+        <div className="max-w-2xl mx-auto mt-3">
+          <div className={styles.progressTrack}>
+            <div className={styles.progressFill} style={{ width: `${progress}%` }} />
           </div>
         </div>
       </header>
 
       {/* Sticky timer footer */}
       {initialTimeLimit > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-100 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
+        <div className={`fixed bottom-0 left-0 right-0 z-30 ${styles.timerFooter}`}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-            <span className="text-xs font-medium text-gray-400 tracking-wide uppercase">Time remaining</span>
+            <span className="text-xs font-medium tracking-wide uppercase" style={{ color: "var(--tm-text-2)" }}>Time remaining</span>
             <Timer totalSeconds={initialTimeLimit} onExpire={handleTimerExpire} />
           </div>
         </div>
@@ -252,32 +244,31 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
 
       {/* Content */}
       <main className={`max-w-2xl mx-auto px-4 py-8 ${initialTimeLimit > 0 ? "pb-24" : ""}`}>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
+        <div className={styles.questionCard}>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-medium text-indigo-600">Question {currentIndex + 1} of {questions.length}</p>
+            <p className="text-xs font-medium" style={{ color: "var(--tm-accent)" }}>Question {currentIndex + 1} of {questions.length}</p>
             {result && (
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${result.isCorrect ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+              <span
+                className="text-xs font-medium px-2 py-0.5 rounded-full"
+                style={result.isCorrect
+                  ? { background: "var(--tm-correct-bg)", color: "var(--tm-correct-text)" }
+                  : { background: "var(--tm-wrong-bg)", color: "var(--tm-wrong-text)" }}
+              >
                 {result.isCorrect ? "Correct" : "Incorrect"}
               </span>
             )}
           </div>
-          <div className="text-gray-900 text-base leading-relaxed mb-6">
+          <div className="text-base leading-relaxed mb-6" style={{ color: "var(--tm-text-1)" }}>
             <MathText text={question.text} />
           </div>
 
           <div className="space-y-3">
             {options.map((opt, i) => {
-              let optClass = "border-gray-200 text-gray-800 hover:border-indigo-300 hover:bg-indigo-50 cursor-pointer";
+              let optVariant = styles.optionDefault;
               if (result) {
-                if (opt === result.correctAnswer) {
-                  optClass = "border-green-400 bg-green-50 text-green-900";
-                } else if (opt === selected && !result.isCorrect) {
-                  optClass = "border-red-400 bg-red-50 text-red-900";
-                } else {
-                  optClass = "border-gray-100 bg-gray-50 text-gray-400 opacity-60 cursor-default";
-                }
+                optVariant = opt === selected ? styles.optionSelected : styles.optionDimmed;
               } else if (selected === opt) {
-                optClass = "border-indigo-500 bg-indigo-50 text-indigo-900";
+                optVariant = styles.optionSelected;
               }
 
               return (
@@ -285,7 +276,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
                   key={i}
                   onClick={() => !result && setSelected(opt)}
                   disabled={!!result}
-                  className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all text-sm touch-manipulation ${!result ? "active:scale-[0.97]" : ""} ${optClass}`}
+                  className={`${styles.optionBase} ${optVariant} touch-manipulation`}
                 >
                   <MathText text={opt} />
                 </button>
@@ -295,45 +286,36 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
         </div>
 
         {result && (
-          <div className={`rounded-2xl p-4 mb-4 ${result.isCorrect ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
+          <div className={result.isCorrect ? styles.feedbackCorrect : styles.feedbackWrong}>
             <div className="flex items-center gap-2 mb-2">
               {result.isCorrect ? (
                 <>
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" style={{ color: "var(--tm-correct-text)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="font-semibold text-green-800">Correct!</span>
+                  <span className="font-semibold" style={{ color: "var(--tm-correct-text)" }}>Correct!</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" style={{ color: "var(--tm-wrong-text)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  <span className="font-semibold text-red-800">Incorrect</span>
+                  <span className="font-semibold" style={{ color: "var(--tm-wrong-text)" }}>Incorrect</span>
                 </>
               )}
             </div>
-            {!showCorrect ? (
-              <button
-                onClick={() => setShowCorrect(true)}
-                className="text-xs font-medium text-gray-500 hover:text-gray-800 underline active:scale-95 transition-transform touch-manipulation"
-              >
-                See correct answer
-              </button>
-            ) : (
-              <div className="text-sm text-gray-700 space-y-1">
-                <p>
-                  <span className="font-medium">Correct answer: </span>
-                  <MathText text={result.correctAnswer} />
+            <div className="text-sm space-y-1 mt-1" style={{ color: "var(--tm-text-3)" }}>
+              <p>
+                <span className="font-medium">Correct answer: </span>
+                <MathText text={result.correctAnswer} />
+              </p>
+              {result.explanation && (
+                <p style={{ color: "var(--tm-text-2)" }}>
+                  <span className="font-medium">Explanation: </span>
+                  {result.explanation}
                 </p>
-                {result.explanation && (
-                  <p className="text-gray-500">
-                    <span className="font-medium">Explanation: </span>
-                    {result.explanation}
-                  </p>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 
@@ -341,15 +323,12 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
           <button
             onClick={submitAnswer}
             disabled={!selected || submitting}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all active:scale-[0.97] disabled:active:scale-100 text-sm touch-manipulation"
+            className={styles.primaryBtn}
           >
             {submitting ? "Submitting…" : "Submit Answer"}
           </button>
         ) : (
-          <button
-            onClick={nextQuestion}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-all active:scale-[0.97] text-sm touch-manipulation"
-          >
+          <button onClick={nextQuestion} className={styles.primaryBtn}>
             {currentIndex + 1 >= questions.length ? "Finish Test" : "Next Question →"}
           </button>
         )}

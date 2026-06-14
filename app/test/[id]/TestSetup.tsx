@@ -64,55 +64,62 @@ export default function TestSetup({ test, existingAttempt }: { test: Test; exist
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 max-w-md w-full">
-        <button onClick={() => router.push("/")} className="text-gray-400 hover:text-gray-600 mb-6 block">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--tm-page)" }}>
+      <div className="rounded-3xl p-8 max-w-md w-full" style={{ background: "var(--tm-surface)", boxShadow: "var(--tm-shadow-card-lg)" }}>
+        <button
+          onClick={() => router.push("/")}
+          className="mb-6 block w-8 h-8 flex items-center justify-center rounded-full touch-manipulation"
+          style={{ background: "var(--tm-surface)", boxShadow: "var(--tm-icon-shadow)", color: "var(--tm-text-2)" }}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
 
-        <h1 className="text-xl font-bold text-gray-900 mb-1">{test.name}</h1>
-        <p className="text-sm text-gray-400 mb-8">
+        <h1 className="text-xl font-bold mb-1" style={{ color: "var(--tm-text-1)" }}>{test.name}</h1>
+        <p className="text-sm mb-8" style={{ color: "var(--tm-text-2)" }}>
           {test.questions.length} questions · ~{estimatedMinutes} min estimated
         </p>
 
         <div className="mb-8">
-          <label className="block text-sm font-medium text-gray-700 mb-3">Set timer (optional)</label>
+          <label className="block text-sm font-medium mb-3" style={{ color: "var(--tm-text-1)" }}>Set timer (optional)</label>
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="block text-xs text-gray-400 mb-1">Hours</label>
+              <label className="block text-xs mb-1" style={{ color: "var(--tm-text-2)" }}>Hours</label>
               <input
                 type="number"
                 min={0}
                 max={23}
                 value={hours}
                 onChange={(e) => setHours(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-center text-lg font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 rounded-xl text-center text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                style={{ background: "var(--tm-surface)", color: "var(--tm-text-1)", border: "1px solid var(--tm-border)" }}
               />
             </div>
-            <span className="text-gray-400 font-bold mt-4">:</span>
+            <span className="font-bold mt-4" style={{ color: "var(--tm-text-2)" }}>:</span>
             <div className="flex-1">
-              <label className="block text-xs text-gray-400 mb-1">Minutes</label>
+              <label className="block text-xs mb-1" style={{ color: "var(--tm-text-2)" }}>Minutes</label>
               <input
                 type="number"
                 min={0}
                 max={59}
                 value={minutes}
                 onChange={(e) => setMinutes(Math.max(0, Math.min(59, parseInt(e.target.value) || 0)))}
-                className="w-full px-3 py-2 border border-gray-200 rounded-xl text-center text-lg font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 rounded-xl text-center text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                style={{ background: "var(--tm-surface)", color: "var(--tm-text-1)", border: "1px solid var(--tm-border)" }}
               />
             </div>
           </div>
           {totalSeconds === 0 && (
-            <p className="text-xs text-gray-400 mt-2">No timer — you can take as long as you need.</p>
+            <p className="text-xs mt-2" style={{ color: "var(--tm-text-2)" }}>No timer — you can take as long as you need.</p>
           )}
         </div>
 
         <button
           onClick={handleStart}
           disabled={starting}
-          className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-xl transition-colors"
+          className="w-full py-3 text-white font-semibold rounded-xl transition-all active:scale-95 touch-manipulation disabled:opacity-50"
+          style={{ background: "linear-gradient(145deg, #6e7ff0, #5458e8)", boxShadow: "var(--tm-btn-shadow)" }}
         >
           {starting ? "Starting…" : "Start Test"}
         </button>

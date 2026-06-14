@@ -92,9 +92,8 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
       >
         {/* Row 1: title + action buttons */}
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-base font-semibold leading-snug pt-0.5 min-w-0 flex-1" style={{ color: "#3d4a5c" }}>{name}</h2>
+          <h2 className="text-base font-semibold leading-snug pt-0.5 min-w-0 flex-1" style={{ color: "var(--tm-text-1)" }}>{name}</h2>
           <div className="flex items-center gap-2.5">
-            {/* Log button */}
             <button
               className={styles.iconBtn}
               onClick={(e) => { e.stopPropagation(); if (!didLongPress.current) setShowLog(true); }}
@@ -105,7 +104,6 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
               </svg>
             </button>
 
-            {/* Restart button */}
             {showRestart && (
               <button
                 className={styles.iconBtn}
@@ -118,7 +116,6 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
               </button>
             )}
 
-            {/* Play button */}
             {!isExtractionError && (
               <button
                 className={styles.playBtn}
@@ -135,10 +132,10 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
 
         {/* Row 2: stats + badge */}
         <div className="mt-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-3 text-sm" style={{ color: "#8896aa" }}>
+          <div className="flex items-center gap-3 text-sm" style={{ color: "var(--tm-text-2)" }}>
             <span>{questionCount} questions</span>
             {!isExtractionError && <span>~{estimatedDuration} min</span>}
-            {score !== null && <span className="font-semibold" style={{ color: "#5a6a80" }}>{score.toFixed(0)}%</span>}
+            {score !== null && <span className="font-semibold" style={{ color: "var(--tm-text-3)" }}>{score.toFixed(0)}%</span>}
           </div>
           {isExtractionError ? (
             <span className={`${styles.badge} ${styles.badgeError}`}>Extraction failed</span>
@@ -150,7 +147,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
         </div>
 
         {isExtractionError && extractionError && (
-          <p className="mt-2 text-xs line-clamp-2" style={{ color: "#b91c1c" }}>{extractionError}</p>
+          <p className="mt-2 text-xs line-clamp-2" style={{ color: "var(--tm-wrong-text)" }}>{extractionError}</p>
         )}
       </div>
 
@@ -163,13 +160,13 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
         >
           <div
             className="rounded-t-3xl sm:rounded-2xl w-full sm:max-w-lg max-h-[80vh] flex flex-col"
-            style={{ background: "#e0e5ee", boxShadow: "0 -8px 40px rgba(0,0,0,0.15)" }}
+            style={{ background: "var(--tm-surface)", boxShadow: "var(--tm-shadow-card-lg)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #c8d0dc" }}>
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid var(--tm-border)" }}>
               <div>
-                <h3 className="text-sm font-semibold" style={{ color: "#3d4a5c" }}>AI Extraction Log</h3>
-                <p className="text-xs mt-0.5 truncate max-w-xs" style={{ color: "#8896aa" }}>{name}</p>
+                <h3 className="text-sm font-semibold" style={{ color: "var(--tm-text-1)" }}>AI Extraction Log</h3>
+                <p className="text-xs mt-0.5 truncate max-w-xs" style={{ color: "var(--tm-text-2)" }}>{name}</p>
               </div>
               <button className={styles.iconBtn} onClick={() => setShowLog(false)}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,17 +180,17 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
                 <span className={`${styles.badge} ${isExtractionError ? styles.badgeError : styles.badgePassed}`}>
                   {isExtractionError ? "Failed" : "Success"}
                 </span>
-                <span className="text-xs" style={{ color: "#8896aa" }}>{questionCount} questions extracted</span>
+                <span className="text-xs" style={{ color: "var(--tm-text-2)" }}>{questionCount} questions extracted</span>
               </div>
 
               {extractionError && (
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-xs font-semibold" style={{ color: "#b91c1c" }}>Error</p>
+                    <p className="text-xs font-semibold" style={{ color: "var(--tm-wrong-text)" }}>Error</p>
                     <button
                       onClick={() => copyToClipboard(extractionError!, "error")}
                       className="flex items-center gap-1 text-xs transition-all active:scale-90 touch-manipulation"
-                      style={{ color: copiedKey === "error" ? "#15803d" : "#8896aa" }}
+                      style={{ color: copiedKey === "error" ? "var(--tm-correct-text)" : "var(--tm-text-2)" }}
                     >
                       {copiedKey === "error" ? (
                         <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Copied!</>
@@ -202,18 +199,18 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
                       )}
                     </button>
                   </div>
-                  <pre className="text-xs rounded-xl p-3 whitespace-pre-wrap break-words" style={{ background: "#fde8e8", color: "#b91c1c", boxShadow: "inset 3px 3px 6px #e8b8b8, inset -3px -3px 6px #fff" }}>{extractionError}</pre>
+                  <pre className="text-xs rounded-xl p-3 whitespace-pre-wrap break-words" style={{ background: "var(--tm-wrong-bg)", color: "var(--tm-wrong-text)", boxShadow: "var(--tm-shadow-inset)" }}>{extractionError}</pre>
                 </div>
               )}
 
               {rawAiResponse && (
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-xs font-semibold" style={{ color: "#5a6a80" }}>Raw AI Response</p>
+                    <p className="text-xs font-semibold" style={{ color: "var(--tm-text-3)" }}>Raw AI Response</p>
                     <button
                       onClick={() => copyToClipboard(rawAiResponse!, "raw")}
                       className="flex items-center gap-1 text-xs transition-all active:scale-90 touch-manipulation"
-                      style={{ color: copiedKey === "raw" ? "#15803d" : "#8896aa" }}
+                      style={{ color: copiedKey === "raw" ? "var(--tm-correct-text)" : "var(--tm-text-2)" }}
                     >
                       {copiedKey === "raw" ? (
                         <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>Copied!</>
@@ -222,12 +219,12 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
                       )}
                     </button>
                   </div>
-                  <pre className="text-xs rounded-xl p-3 whitespace-pre-wrap break-words max-h-64 overflow-y-auto" style={{ background: "#d8dde8", color: "#3d4a5c", boxShadow: "inset 3px 3px 6px #b8c0cc, inset -3px -3px 6px #ffffff" }}>{rawAiResponse}</pre>
+                  <pre className="text-xs rounded-xl p-3 whitespace-pre-wrap break-words max-h-64 overflow-y-auto" style={{ background: "var(--tm-page)", color: "var(--tm-text-1)", boxShadow: "var(--tm-shadow-inset)" }}>{rawAiResponse}</pre>
                 </div>
               )}
 
               {!extractionError && !rawAiResponse && (
-                <p className="text-sm text-center py-4" style={{ color: "#8896aa" }}>No log data available.</p>
+                <p className="text-sm text-center py-4" style={{ color: "var(--tm-text-2)" }}>No log data available.</p>
               )}
             </div>
           </div>
@@ -243,18 +240,18 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
         >
           <div
             className="rounded-2xl p-6 mx-4 max-w-sm w-full"
-            style={{ background: "#e0e5ee", boxShadow: "12px 12px 24px #b8c0cc, -12px -12px 24px #ffffff" }}
+            style={{ background: "var(--tm-surface)", boxShadow: "var(--tm-shadow-card-lg)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-base font-semibold mb-1" style={{ color: "#3d4a5c" }}>Delete test?</h3>
-            <p className="text-sm mb-5" style={{ color: "#8896aa" }}>
-              <span className="font-medium" style={{ color: "#5a6a80" }}>&ldquo;{name}&rdquo;</span> and all its attempts will be permanently removed.
+            <h3 className="text-base font-semibold mb-1" style={{ color: "var(--tm-text-1)" }}>Delete test?</h3>
+            <p className="text-sm mb-5" style={{ color: "var(--tm-text-2)" }}>
+              <span className="font-medium" style={{ color: "var(--tm-text-3)" }}>&ldquo;{name}&rdquo;</span> and all its attempts will be permanently removed.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className={`${styles.iconBtn} flex-1 rounded-xl text-sm font-medium`}
-                style={{ width: "auto", height: "auto", borderRadius: "12px", padding: "10px" }}
+                className={styles.iconBtn}
+                style={{ width: "auto", height: "auto", borderRadius: "12px", padding: "10px", flex: 1, fontSize: "0.875rem", fontWeight: 500 }}
               >
                 Cancel
               </button>

@@ -6,6 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { prisma } from "@/lib/prisma";
 
+export const maxDuration = 60;
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const PROMPT = `Extract all questions and answers from this test/exam document. Return a JSON object with the following structure:
@@ -29,24 +31,73 @@ CRITICAL rules:
 - If it's a true/false question, options should be ["True", "False"].
 - Include ALL questions found in the document.
 - Return ONLY valid JSON — no markdown fences, no extra text.
+- IMPORTANT: In JSON strings, LaTeX backslashes MUST be doubled. Write \\\\sum not \\sum, \\\\frac not \\frac, etc.
 
 MATHEMATICAL FORMULAS — read with extreme care:
 - Render every formula in LaTeX: $...$ for inline, $$...$$ for block.
-- These symbols are frequently confused — identify each one precisely before writing LaTeX:
-    ∑ (sigma, summation) → \\sum        e.g. $\\sum_{i=1}^{n} x_i$
-    ∏ (pi, product)      → \\prod       e.g. $\\prod_{i=1}^{n} x_i$   ← NOT \\sum
-    √  (square root)     → \\sqrt{}     e.g. $\\sqrt{x}$
-    ⁿ√ (n-th root)       → \\sqrt[n]{} e.g. $\\sqrt[n]{\\prod_{i=1}^{n} x_i}$
-    x̄  (x-bar, mean)     → \\bar{x}
-    x²  (squared)        → x^2
-- Never substitute one operator for another. If a formula contains ∏ it must appear as \\prod, not \\sum.
-- Preserve all superscripts, subscripts, fraction bars, and root indices exactly as printed.
-- If a formula is unclear, reproduce what is visually present rather than guessing a simpler equivalent.`;
+- Before writing any formula, LOOK AGAIN at the exact symbol in the image. Do not write from memory or assumption.
+
+SYMBOL REFERENCE TABLE — match what you see to the correct LaTeX:
+  OPERATORS
+    ∑  (capital sigma, tall zigzag, summation)   → \\\\sum         $\\\\sum_{i=1}^{n} x_i$
+    ∏  (capital pi, tall rectangle legs, product) → \\\\prod        $\\\\prod_{i=1}^{n} x_i$
+    ∫  (elongated S, integral)                   → \\\\int         $\\\\int_a^b f(x)\\\\,dx$
+    ±  (plus-minus)                              → \\\\pm
+    ×  (multiplication cross)                    → \\\\times
+    ÷  (division)                                → \\\\div
+    ≠  (not equal)                               → \\\\neq
+    ≤  (less-or-equal)                           → \\\\leq
+    ≥  (greater-or-equal)                        → \\\\geq
+    ≈  (approximately equal)                     → \\\\approx
+    ∞  (infinity)                                → \\\\infty
+  ROOTS & FRACTIONS
+    √x  (square root)                            → \\\\sqrt{x}
+    ⁿ√x (n-th root)                              → \\\\sqrt[n]{x}
+    a/b (fraction)                               → \\\\frac{a}{b}
+  GREEK LETTERS (lowercase)
+    α → \\\\alpha   β → \\\\beta    γ → \\\\gamma   δ → \\\\delta
+    ε → \\\\epsilon ζ → \\\\zeta    η → \\\\eta     θ → \\\\theta
+    λ → \\\\lambda  μ → \\\\mu      ν → \\\\nu      ξ → \\\\xi
+    π → \\\\pi      ρ → \\\\rho     σ → \\\\sigma   τ → \\\\tau
+    φ → \\\\phi     χ → \\\\chi     ψ → \\\\psi     ω → \\\\omega
+  GREEK LETTERS (uppercase — these differ from operators above)
+    Γ → \\\\Gamma   Δ → \\\\Delta   Θ → \\\\Theta   Λ → \\\\Lambda
+    Ξ → \\\\Xi      Π → \\\\Pi      Σ → \\\\Sigma   Φ → \\\\Phi
+    Ψ → \\\\Psi     Ω → \\\\Omega
+  STATISTICS & PROBABILITY
+    x̄  (x with overbar, sample mean)             → \\\\bar{x}
+    x̂  (x with hat, estimator)                  → \\\\hat{x}
+    x²  or x^2 (squared)                        → x^2
+    C(n,k) or ⁿCₖ (combinations)                → \\\\binom{n}{k}
+    P(A|B) (conditional probability)             → P(A|B)
+    μ (population mean) → \\\\mu
+    σ (population std dev) → \\\\sigma
+    σ² (variance) → \\\\sigma^2
+    s² (sample variance) → s^2
+    Σ when used as summation operator            → \\\\sum   (NOT \\\\Sigma)
+
+CRITICAL ANTI-CONFUSION RULES:
+1. ∑ (summation) vs ∏ (product): ∑ has a zigzag/M-shape top and bottom; ∏ has a flat top and two vertical legs extending down. They are NEVER interchangeable.
+2. σ (lowercase sigma) vs Σ (uppercase sigma used as summation): If it has limits (subscript/superscript i=1, n), it is \\\\sum. If it stands alone as a parameter, it is \\\\sigma.
+3. π (pi, ratio of circumference) vs ∏ (product operator with limits): ∏ is taller and has explicit index limits. π is just the constant ≈3.14159.
+4. μ (mu) vs u (letter u): μ has two downward strokes; u has a curved bottom.
+5. Never omit subscripts or superscripts — if you see $x_i$ do not write just $x$.
+6. Never flatten a fraction a/b into just text — always use \\\\frac{a}{b}.
+7. If a root has an index (small number in the crook), include it: \\\\sqrt[3]{x} not \\\\sqrt{x}.
+
+After writing each formula, re-read the original image and verify the symbol matches exactly. If uncertain between two symbols, output the one that is visually present, not the one that is more common in textbooks.`;
 
 const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
 
+function sanitizeJsonBackslashes(raw: string): string {
+  // Gemini sometimes outputs bare LaTeX backslashes (\sum, \frac) inside JSON strings,
+  // which are invalid JSON escape sequences. This escapes any lone backslash that is not
+  // already a valid JSON escape: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX
+  return raw.replace(/\\(?!["\\/bfnrtu])/g, "\\\\");
+}
+
 export async function POST(req: NextRequest) {
-  const { pdfUrl, testName } = await req.json();
+  const { pdfUrl, testName, testId: existingTestId } = await req.json();
 
   if (!pdfUrl || !testName) {
     return NextResponse.json({ error: "Missing pdfUrl or testName" }, { status: 400 });
@@ -95,12 +146,11 @@ export async function POST(req: NextRequest) {
       throw new Error(`All Gemini models are rate-limited. Please wait a minute and try again. Last error: ${String(lastError)}`);
     }
 
-    // Parse JSON
-    const jsonText = rawAiResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    // Gemini sometimes emits single backslashes in LaTeX (e.g. \sum, \bar) which are
-    // invalid JSON escape sequences. Fix them before parsing.
-    const sanitizedJsonText = jsonText.replace(/\\(?!["\\/bfnrtu])/g, "\\\\");
-    const parsed = JSON.parse(sanitizedJsonText) as { questions: typeof validQuestions };
+    // Strip markdown fences then sanitize bare backslashes before parsing
+    const jsonText = sanitizeJsonBackslashes(
+      rawAiResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
+    );
+    const parsed = JSON.parse(jsonText) as { questions: typeof validQuestions };
     validQuestions = parsed.questions.filter((q) => q.correctAnswer != null);
 
   } catch (err) {
@@ -109,27 +159,45 @@ export async function POST(req: NextRequest) {
     console.error("[extract] error:", extractionError);
   }
 
-  // Always persist a Test record — even on failure — so the log is visible in the UI
+  const questionRows = validQuestions.map((q, i) => ({
+    text: q.text,
+    options: JSON.stringify(q.options),
+    correctAnswer: q.correctAnswer,
+    explanation: q.explanation ?? null,
+    order: i,
+  }));
+
+  // Persist — update existing test if retrying, otherwise create a new one
   try {
-    const test = await prisma.test.create({
-      data: {
-        name: testName,
-        pdfUrl,
-        extractStatus,
-        rawAiResponse,
-        extractionError,
-        questions: {
-          create: validQuestions.map((q, i) => ({
-            text: q.text,
-            options: JSON.stringify(q.options),
-            correctAnswer: q.correctAnswer,
-            explanation: q.explanation ?? null,
-            order: i,
-          })),
+    let test;
+
+    if (existingTestId) {
+      // Retry: replace the failed test's data in-place to avoid duplicate list entries
+      await prisma.question.deleteMany({ where: { testId: existingTestId } });
+      test = await prisma.test.update({
+        where: { id: existingTestId },
+        data: {
+          name: testName,
+          extractStatus,
+          rawAiResponse,
+          extractionError,
+          questions: { create: questionRows },
         },
-      },
-      include: { questions: true },
-    });
+        include: { questions: true },
+      });
+    } else {
+      test = await prisma.test.create({
+        data: {
+          name: testName,
+          pdfUrl,
+          extractStatus,
+          rawAiResponse,
+          extractionError,
+          questions: { create: questionRows },
+        },
+        include: { questions: true },
+      });
+    }
 
     if (extractStatus === "error") {
       return NextResponse.json({ error: extractionError, testId: test.id }, { status: 422 });

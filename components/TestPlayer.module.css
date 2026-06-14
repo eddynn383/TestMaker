@@ -1,0 +1,185 @@
+/* ─── Shared surface ──────────────────────────────────────────────────────── */
+.page { background: var(--tm-page); min-height: 100vh; }
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  background: var(--tm-page);
+  box-shadow: var(--tm-shadow-header);
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+/* ─── Icon buttons (back, drawer toggle, drawer close) ───────────────────── */
+.iconBtn {
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--tm-surface);
+  border: none;
+  box-shadow: var(--tm-icon-shadow);
+  color: var(--tm-text-2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, color 0.15s ease;
+  touch-action: manipulation;
+  outline: none;
+}
+.iconBtn:hover { color: var(--tm-text-1); }
+.iconBtn:active {
+  box-shadow: var(--tm-icon-shadow-active);
+}
+
+/* ─── Progress bar ───────────────────────────────────────────────────────── */
+.progressTrack {
+  height: 6px;
+  background: var(--tm-surface);
+  border-radius: 9999px;
+  box-shadow: var(--tm-progress-track-shadow);
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  box-shadow: 0 0 8px rgba(99,102,241,0.5);
+  transition: width 0.5s ease;
+}
+
+/* ─── Question card ──────────────────────────────────────────────────────── */
+.questionCard {
+  background: var(--tm-surface);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--tm-shadow-card);
+  margin-bottom: 16px;
+  border: 1px solid transparent;
+}
+
+/* ─── Answer options ─────────────────────────────────────────────────────── */
+.optionBase {
+  width: 100%; text-align: left;
+  padding: 13px 16px;
+  border-radius: 14px;
+  font-size: 0.875rem;
+  transition: box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.optionDefault {
+  background: var(--tm-option-bg);
+  color: var(--tm-text-1);
+  border: var(--tm-option-border, none);
+  box-shadow: var(--tm-option-shadow);
+}
+.optionDefault:active { box-shadow: var(--tm-shadow-inset); }
+.optionSelected {
+  background: var(--tm-option-sel-bg);
+  color: var(--tm-option-sel-text);
+  border: var(--tm-option-sel-border, none);
+  box-shadow: var(--tm-option-sel-shadow);
+}
+.optionCorrect {
+  background: var(--tm-correct-bg); color: var(--tm-correct-text);
+  border: none;
+  box-shadow: var(--tm-shadow-inset); cursor: default;
+}
+.optionWrong {
+  background: var(--tm-wrong-bg); color: var(--tm-wrong-text);
+  border: none;
+  box-shadow: var(--tm-shadow-inset); cursor: default;
+}
+.optionDimmed {
+  background: var(--tm-option-dim-bg); color: var(--tm-option-dim-text);
+  opacity: var(--tm-option-dim-opacity);
+  border: var(--tm-option-border, none);
+  box-shadow: var(--tm-option-dim-shadow, none); cursor: default;
+}
+
+/* ─── Feedback box ───────────────────────────────────────────────────────── */
+.feedbackCorrect {
+  background: var(--tm-correct-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px;
+  box-shadow: var(--tm-feedback-correct-shadow);
+}
+.feedbackWrong {
+  background: var(--tm-wrong-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px;
+  box-shadow: var(--tm-feedback-wrong-shadow);
+}
+
+/* ─── Primary CTA button (submit / next / back to home) ─────────────────── */
+.primaryBtn {
+  width: 100%; padding: 14px;
+  border: none; border-radius: 14px;
+  background: linear-gradient(145deg, #6e7ff0, #5458e8);
+  color: white; font-weight: 600; font-size: 0.875rem;
+  cursor: pointer;
+  box-shadow: var(--tm-btn-shadow);
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+  touch-action: manipulation;
+  outline: none;
+}
+.primaryBtn:hover { background: linear-gradient(145deg, #7a8af2, #4f53e0); }
+.primaryBtn:active {
+  box-shadow: var(--tm-btn-shadow-active);
+}
+.primaryBtn:disabled {
+  background: var(--tm-btn-dis-bg); color: var(--tm-btn-dis-text); cursor: not-allowed;
+  box-shadow: var(--tm-btn-dis-shadow, none);
+}
+
+/* ─── Drawer ─────────────────────────────────────────────────────────────── */
+.drawer {
+  background: var(--tm-page);
+  box-shadow: var(--tm-shadow-drawer);
+}
+
+/* Drawer question grid */
+.drawerBtnBase {
+  border: none; border-radius: 10px;
+  font-size: 0.75rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; width: 100%;
+  transition: box-shadow 0.15s ease;
+  touch-action: manipulation; outline: none;
+}
+.drawerBtnPending {
+  background: var(--tm-drawer-pending-bg); color: var(--tm-drawer-pending-text); cursor: not-allowed;
+  box-shadow: var(--tm-drawer-pending-shadow, none);
+}
+.drawerBtnCorrect {
+  background: var(--tm-drawer-correct-bg); color: var(--tm-drawer-correct-text); cursor: pointer;
+  box-shadow: var(--tm-drawer-correct-shadow);
+}
+.drawerBtnCorrect:active { box-shadow: var(--tm-shadow-inset-sm); }
+.drawerBtnWrong {
+  background: var(--tm-drawer-wrong-bg); color: var(--tm-drawer-wrong-text); cursor: pointer;
+  box-shadow: var(--tm-drawer-wrong-shadow);
+}
+.drawerBtnWrong:active { box-shadow: var(--tm-shadow-inset-sm); }
+
+/* ─── Timer footer ───────────────────────────────────────────────────────── */
+.timerFooter {
+  background: var(--tm-page);
+  box-shadow: var(--tm-shadow-footer);
+}
+
+/* ─── Score screen ───────────────────────────────────────────────────────── */
+.scoreCard {
+  background: var(--tm-surface); border-radius: 28px;
+  padding: 40px; max-width: 400px; width: 100%; text-align: center;
+  box-shadow: var(--tm-shadow-card-lg);
+}
+.scoreIconPassed {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--tm-score-pass-bg);
+  box-shadow: var(--tm-score-pass-shadow);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+}
+.scoreIconFailed {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--tm-score-fail-bg);
+  box-shadow: var(--tm-score-fail-shadow);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+}

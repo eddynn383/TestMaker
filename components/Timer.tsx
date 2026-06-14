@@ -26,8 +26,18 @@ export default function Timer({ totalSeconds, onExpire }: TimerProps) {
   const percent = (remaining / totalSeconds) * 100;
   const isLow = remaining < 60;
 
+  const pillStyle = isLow
+    ? { background: "var(--tm-timer-bg-low)", boxShadow: "var(--tm-timer-shadow-low)", color: "var(--tm-timer-text-low)" }
+    : { background: "var(--tm-timer-bg)", boxShadow: "var(--tm-timer-shadow)", color: "var(--tm-timer-text)" };
+
+  const trackStyle = { background: "var(--tm-timer-track-bg)" };
+
+  const fillStyle = isLow
+    ? { background: "#ef4444", width: `${percent}%` }
+    : { background: "linear-gradient(90deg, #6366f1, #4f46e5)", width: `${percent}%` };
+
   return (
-    <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm font-semibold ${isLow ? "bg-red-50 text-red-600" : "bg-gray-50 text-gray-700"}`}>
+    <div className="flex items-center gap-2 px-4 py-2 rounded-xl font-mono text-sm font-semibold" style={pillStyle}>
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10" strokeWidth="2" />
         <path strokeWidth="2" strokeLinecap="round" d="M12 6v6l4 2" />
@@ -35,11 +45,8 @@ export default function Timer({ totalSeconds, onExpire }: TimerProps) {
       <span>
         {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
       </span>
-      <div className="w-20 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ${isLow ? "bg-red-500" : "bg-indigo-500"}`}
-          style={{ width: `${percent}%` }}
-        />
+      <div className="w-20 h-1.5 rounded-full overflow-hidden" style={trackStyle}>
+        <div className="h-full rounded-full transition-all duration-1000" style={fillStyle} />
       </div>
     </div>
   );
