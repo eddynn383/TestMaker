@@ -17,7 +17,7 @@ interface TestCardProps {
 }
 
 const statusConfig: Record<string, { label: string; className: string }> = {
-  not_started: { label: "Not Started", className: "bg-gray-100 text-gray-600" },
+  not_started: { label: "Not Started", className: "bg-gray-200/70 text-gray-500" },
   started: { label: "In Progress", className: "bg-blue-100 text-blue-700" },
   passed: { label: "Passed", className: "bg-green-100 text-green-700" },
   failed: { label: "Failed", className: "bg-red-100 text-red-700" },
@@ -76,7 +76,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
   return (
     <>
       <div
-        className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-4 sm:px-6 sm:py-5 hover:shadow-md transition-shadow select-none"
+        className="bg-gray-50 rounded-2xl px-4 py-4 sm:px-6 sm:py-5 shadow-[6px_6px_12px_#c8cfd8,-6px_-6px_12px_#ffffff] transition-shadow select-none"
         onPointerDown={startPress}
         onPointerUp={cancelPress}
         onPointerLeave={cancelPress}
@@ -88,7 +88,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); if (!didLongPress.current) setShowLog(true); }}
-              className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-all active:scale-90 touch-manipulation"
+              className="w-9 h-9 rounded-full bg-gray-50 shadow-[3px_3px_6px_#c8cfd8,-3px_-3px_6px_#ffffff] active:shadow-[inset_3px_3px_6px_#c8cfd8,inset_-3px_-3px_6px_#ffffff] text-gray-400 hover:text-gray-600 flex items-center justify-center transition-all touch-manipulation"
               title="View AI log"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +98,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
             {showRestart && (
               <button
                 onClick={() => { if (!didLongPress.current) router.push(`/test/${id}?new=1`); }}
-                className="w-9 h-9 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-400 hover:text-gray-600 flex items-center justify-center transition-all active:scale-90 touch-manipulation"
+                className="w-9 h-9 rounded-full bg-gray-50 shadow-[3px_3px_6px_#c8cfd8,-3px_-3px_6px_#ffffff] active:shadow-[inset_3px_3px_6px_#c8cfd8,inset_-3px_-3px_6px_#ffffff] text-gray-400 hover:text-gray-600 flex items-center justify-center transition-all touch-manipulation"
                 title="Restart test"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +109,7 @@ export default function TestCard({ id, name, questionCount, estimatedDuration, s
             {!isExtractionError && (
               <button
                 onClick={() => { if (!didLongPress.current) router.push(`/test/${id}`); }}
-                className="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-all active:scale-90 shadow-sm touch-manipulation"
+                className="w-10 h-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center transition-all shadow-[3px_3px_8px_rgba(67,56,202,0.45),-2px_-2px_6px_rgba(255,255,255,0.25)] active:shadow-[inset_2px_2px_5px_rgba(67,56,202,0.5)] touch-manipulation"
                 title={status === "started" ? "Continue test" : "Start test"}
               >
                 <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
