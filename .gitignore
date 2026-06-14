@@ -50,3 +50,6 @@ prisma/dev.db
 prisma/dev.db-journal
 dev.db
 dev.db-journal
+
+# Claude Code local session data
+.claude/
