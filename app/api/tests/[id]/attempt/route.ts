@@ -39,6 +39,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const body = await req.json();
 
+  if (body.action === "pause") {
+    const { attemptId, timeRemaining } = body;
+    await prisma.testAttempt.update({
+      where: { id: attemptId },
+      data: { timeRemaining: typeof timeRemaining === "number" ? timeRemaining : null },
+    });
+    return NextResponse.json({ ok: true });
+  }
+
   if (body.action === "answer") {
     const { attemptId, questionId, selectedAnswer } = body;
 

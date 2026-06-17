@@ -23,6 +23,7 @@ interface Test {
 interface ExistingAttempt {
   id: string;
   timeLimit: number | null;
+  timeRemaining: number | null;
 }
 
 export default function TestSetup({ test, existingAttempt }: { test: Test; existingAttempt: ExistingAttempt | null }) {
@@ -37,7 +38,10 @@ export default function TestSetup({ test, existingAttempt }: { test: Test; exist
 
   const totalSeconds = hours * 3600 + minutes * 60;
   const estimatedMinutes = Math.ceil(test.questions.length * 1.5);
-  const resumeTimeLimit = existingAttempt?.timeLimit ?? 0;
+  // Prefer saved remaining time over the original limit so the timer resumes where it paused.
+  const resumeTimeLimit = existingAttempt
+    ? (existingAttempt.timeRemaining ?? existingAttempt.timeLimit ?? 0)
+    : 0;
 
   async function handleStart() {
     setStarting(true);

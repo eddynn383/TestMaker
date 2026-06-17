@@ -27,10 +27,14 @@ CRITICAL rules:
 - "text" must contain ONLY the question stem. It must end before the first answer option (a), b), A), B), 1., 2., etc.).
 - "options" must be a flat array of strings — one entry per answer choice, containing only the option text, NOT the label (no "a)", "b)", "A.", etc.).
 - Every option that appears in the document must be a separate element in the array.
-- "questionType" must be "single" if exactly one answer is correct, or "multiple" if two or more answers are simultaneously correct.
+- "questionType" is determined by counting the marked correct answers for that question:
+    • Count how many answer options are visually marked as correct (circled letter, filled bubble, checkmark, bold, underlined, starred, etc.).
+    • Exactly 1 marked answer → "single".
+    • 2 or more marked answers → "multiple".
+    • If no answers are marked AND the question stem does not say "select all that apply" / "choose all correct" / similar, default to "single".
 - "correctAnswers" is ALWAYS an array. For single-answer questions it has exactly one element. For multiple-answer questions it has all correct answers.
 - Every string in "correctAnswers" must exactly match one entry in "options".
-- If the document marks correct answers (e.g. bold, underlined, starred, circled letter), include ALL marked answers in correctAnswers.
+- For scanned PDFs: a circle drawn around a letter label (e.g. Ⓐ, ⓑ) is the primary correct-answer marker. Count the circles per question — one circle means "single", two or more circles means "multiple".
 - If it's a true/false question, options should be ["True", "False"] and questionType is "single".
 - Include ALL questions found in the document.
 - Return ONLY valid JSON — no markdown fences, no extra text.

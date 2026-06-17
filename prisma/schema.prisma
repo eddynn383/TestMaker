@@ -35,15 +35,16 @@ model Question {
 }
 
 model TestAttempt {
-  id          String    @id @default(cuid())
-  testId      String
-  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
-  status      String    @default("started")
-  score       Float?
-  timeLimit   Int?
-  startedAt   DateTime  @default(now())
-  completedAt DateTime?
-  answers     Answer[]
+  id            String    @id @default(cuid())
+  testId        String
+  test          Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  status        String    @default("started")
+  score         Float?
+  timeLimit     Int?
+  timeRemaining Int?
+  startedAt     DateTime  @default(now())
+  completedAt   DateTime?
+  answers       Answer[]
 }
 
 model Answer {

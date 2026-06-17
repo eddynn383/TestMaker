@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Timer from "./Timer";
@@ -55,6 +55,42 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
   const [finalScore, setFinalScore] = useState<{ score: number; correct: number; total: number; status: string } | null>(null);
   const [answeredMap, setAnsweredMap] = useState<Record<number, AnswerRecord>>({});
   const [showDrawer, setShowDrawer] = useState(false);
+
+  // Tracks the live remaining seconds so we can save it when the user exits.
+  const timerRemainingRef = useRef(initialTimeLimit);
+
+  const handleTick = useCallback((remaining: number) => {
+    timerRemainingRef.current = remaining;
+  }, []);
+
+  async function saveTimer() {
+    if (initialTimeLimit <= 0) return;
+    await fetch(`/api/tests/${testId}/attempt`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "pause", attemptId, timeRemaining: timerRemainingRef.current }),
+    });
+  }
+
+  async function exitTest() {
+    await saveTimer();
+    router.push("/");
+  }
+
+  // Save the timer when the tab/window is closed or the page is unloaded.
+  useEffect(() => {
+    if (initialTimeLimit <= 0) return;
+    const handleUnload = () => {
+      fetch(`/api/tests/${testId}/attempt`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "pause", attemptId, timeRemaining: timerRemainingRef.current }),
+        keepalive: true,
+      }).catch(() => {});
+    };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, [testId, attemptId, initialTimeLimit]);
 
   const question = questions[currentIndex];
   const options: string[] = JSON.parse(question.options);
@@ -263,7 +299,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
       <header className={`${styles.header} px-4 py-3`}>
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
-            <button onClick={() => router.push("/")} className={styles.iconBtn}>
+            <button onClick={exitTest} className={styles.iconBtn}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
@@ -291,7 +327,7 @@ export default function TestPlayer({ testId, testName, questions, initialTimeLim
         <div className={`fixed bottom-0 left-0 right-0 z-30 ${styles.timerFooter}`}>
           <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
             <span className="text-xs font-medium tracking-wide uppercase" style={{ color: "var(--tm-text-2)" }}>Time remaining</span>
-            <Timer totalSeconds={initialTimeLimit} onExpire={handleTimerExpire} />
+            <Timer totalSeconds={initialTimeLimit} onExpire={handleTimerExpire} onTick={handleTick} />
           </div>
         </div>
       )}

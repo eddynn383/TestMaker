@@ -1,23 +1,34 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 interface TimerProps {
   totalSeconds: number;
   onExpire: () => void;
+  onTick?: (remaining: number) => void;
 }
 
-export default function Timer({ totalSeconds, onExpire }: TimerProps) {
+export default function Timer({ totalSeconds, onExpire, onTick }: TimerProps) {
   const [remaining, setRemaining] = useState(totalSeconds);
 
   const handleExpire = useCallback(onExpire, [onExpire]);
+  // Use a ref so the interval callback always sees the latest onTick without
+  // needing it in the effect dependency array (which would reset the interval).
+  const onTickRef = useRef(onTick);
+  useEffect(() => { onTickRef.current = onTick; }, [onTick]);
 
   useEffect(() => {
     if (remaining <= 0) {
       handleExpire();
       return;
     }
-    const id = setInterval(() => setRemaining((s) => s - 1), 1000);
+    const id = setInterval(() => {
+      setRemaining((s) => {
+        const next = s - 1;
+        onTickRef.current?.(next);
+        return next;
+      });
+    }, 1000);
     return () => clearInterval(id);
   }, [remaining, handleExpire]);
 

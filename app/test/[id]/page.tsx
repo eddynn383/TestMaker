@@ -26,13 +26,13 @@ export default async function TestPage({ params, searchParams }: Props) {
   if (!test) return notFound();
 
   // Resume an in-progress attempt unless the user explicitly wants to restart
-  type ExistingAttempt = { id: string; timeLimit: number | null };
+  type ExistingAttempt = { id: string; timeLimit: number | null; timeRemaining: number | null };
   let existingAttempt: ExistingAttempt | null = null;
   if (!isNew) {
     existingAttempt = await prisma.testAttempt.findFirst({
       where: { testId: id, status: "started" },
       orderBy: { startedAt: "desc" },
-      select: { id: true, timeLimit: true },
+      select: { id: true, timeLimit: true, timeRemaining: true },
     }) as ExistingAttempt | null;
   }
 
