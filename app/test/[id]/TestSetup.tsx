@@ -9,6 +9,7 @@ interface Question {
   text: string;
   options: string;
   correctAnswer: string;
+  questionType: string;
   explanation: string | null;
   order: number;
 }
